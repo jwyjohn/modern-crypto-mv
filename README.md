@@ -131,7 +131,7 @@ bash scripts/render_all.sh                    # 四个版本 → out/Crypto_MV_{
 npm run render                                # 仅完整版
 npm run render:short                          # 仅短版
 bash scripts/sheet.sh name sym_diff:300 pk_dh:350   # 按「镜头:场景帧」渲染静帧并拼图到 out/name.jpg
-npx remotion still Cover assets/cover.png --image-format=png   # 封面（1600×1200，4:3）：游戏开发部执行一次 Σ 协议
+npx remotion still Cover assets/cover.png --image-format=png   # 封面（1600×1200，4:3）：游戏开发部执行一次 Σ 协议（画面只保留交互本身的文字）
 ```
 
 渲染配置在 `remotion.config.ts`（h264 / crf 17 / yuv420p / jpeg 92，并发 8）。本地渲染前先 `npm run music` 生成 `public/*.wav`（母带不进仓库）。

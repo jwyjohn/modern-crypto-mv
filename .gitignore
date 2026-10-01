@@ -1,0 +1,19 @@
+# 依赖
+node_modules/
+.venv/
+__pycache__/
+*.pyc
+
+# 渲染输出
+out/
+
+# 母带只留本地；网页流播版 mp3 随仓库
+public/*.wav
+public/*.mp3
+!public/music.mp3
+!public/music_short.mp3
+
+.DS_Store
+*.log
+.remotion/
+dist/

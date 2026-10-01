@@ -1,0 +1,38 @@
+{
+  "name": "mv-crypto",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "studio": "remotion studio",
+    "render": "remotion render MVCrypto out/Crypto_MV_full.mp4",
+    "timeline": "node scripts/export_timeline.mjs",
+    "music": "node scripts/export_timeline.mjs && .venv/bin/python audio/make_music.py audio/timeline.json public/music.wav && .venv/bin/python audio/make_music.py audio/timeline_short.json public/music_short.wav",
+    "audio:mp3": "for v in music music_short; do ffmpeg -hide_banner -loglevel error -y -i public/$v.wav -codec:a libmp3lame -b:a 128k -ar 48000 -joint_stereo 1 public/$v.mp3 && cp public/$v.mp3 web-public/$v.mp3; done",
+    "typecheck": "tsc --noEmit -p .",
+    "web:dev": "vite",
+    "web:build": "vite build",
+    "web:preview": "vite preview",
+    "render:short": "remotion render MVCryptoShort out/Crypto_MV_short.mp4",
+    "render:classic": "remotion render MVCryptoClassic out/Crypto_MV_full_classic.mp4",
+    "render:short:classic": "remotion render MVCryptoShortClassic out/Crypto_MV_short_classic.mp4"
+  },
+  "dependencies": {
+    "@remotion/bundler": "^4.0.529",
+    "@remotion/cli": "^4.0.529",
+    "@remotion/player": "^4.0.529",
+    "@remotion/renderer": "^4.0.529",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "remotion": "^4.0.529"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.1",
+    "esbuild": "^0.28.1",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.1"
+  },
+  "allowScripts": {
+    "esbuild@0.28.1": true
+  }
+}

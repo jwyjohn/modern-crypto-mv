@@ -3,6 +3,8 @@
 一部介绍现代密码学的 Remotion 动画短片：五章、四十余个算法，从香农的完美保密一路讲到后量子密码与隐私计算。
 1920×1080 / 60fps，时间轴驱动；一套代码同时出「渲染成片」和「网页实时版」，配乐由脚本按时间轴程序化生成。
 
+![封面](assets/cover.png)
+
 画面是灰白黑「纸与墨」的极简像素风，语气是介绍性的编年叙事；每个场景都标注**年份 · 研究者 · 原始论文**。
 
 ## 效果预览
@@ -129,6 +131,7 @@ bash scripts/render_all.sh                    # 四个版本 → out/Crypto_MV_{
 npm run render                                # 仅完整版
 npm run render:short                          # 仅短版
 bash scripts/sheet.sh name sym_diff:300 pk_dh:350   # 按「镜头:场景帧」渲染静帧并拼图到 out/name.jpg
+npx remotion still Cover assets/cover.png --image-format=png   # 封面（1600×1200，4:3）：游戏开发部执行一次 Σ 协议
 ```
 
 渲染配置在 `remotion.config.ts`（h264 / crf 17 / yuv420p / jpeg 92，并发 8）。本地渲染前先 `npm run music` 生成 `public/*.wav`（母带不进仓库）。

@@ -4,7 +4,7 @@ import path from 'node:path';
 const frames = process.argv.slice(2).map(Number);
 const serveUrl = await bundle({entryPoint: path.resolve('src/index.ts'), onProgress: () => {}});
 const browser = await openBrowser('chrome', {chromiumOptions: {gl: 'angle'}});
-const composition = await selectComposition({serveUrl, id: process.env.COMP ?? 'MVCryptoPreview', puppeteerInstance: browser});
+const composition = await selectComposition({serveUrl, id: process.env.COMP ?? 'MVInferencePreview', puppeteerInstance: browser});
 for (const frame of frames) {
   const t = Date.now();
   await renderStill({composition, serveUrl, output: `out/stills/f${String(frame).padStart(5, '0')}.jpg`, frame, imageFormat: 'jpeg', jpegQuality: 80, scale: 0.5, puppeteerInstance: browser, overwrite: true});

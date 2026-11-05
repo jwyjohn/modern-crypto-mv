@@ -1,20 +1,18 @@
 {
-  "name": "mv-crypto",
+  "name": "mv-mi50-inference",
   "version": "1.0.0",
   "private": true,
   "scripts": {
     "studio": "remotion studio",
-    "render": "remotion render MVCrypto out/Crypto_MV_full.mp4",
+    "render": "remotion render MVInference out/MI50_MV.mp4",
     "timeline": "node scripts/export_timeline.mjs",
-    "music": "node scripts/export_timeline.mjs && .venv/bin/python audio/make_music.py audio/timeline.json public/music.wav && .venv/bin/python audio/make_music.py audio/timeline_short.json public/music_short.wav",
-    "audio:mp3": "for v in music music_short; do ffmpeg -hide_banner -loglevel error -y -i public/$v.wav -codec:a libmp3lame -b:a 128k -ar 48000 -joint_stereo 1 public/$v.mp3 && cp public/$v.mp3 web-public/$v.mp3; done",
+    "music": "node scripts/export_timeline.mjs && .venv/bin/python audio/make_music.py audio/timeline.json public/music.wav",
+    "audio:mp3": "npx remotion ffmpeg -hide_banner -loglevel error -y -i public/music.wav -codec:a libmp3lame -b:a 128k public/music.mp3 && cp public/music.mp3 web-public/music.mp3",
     "typecheck": "tsc --noEmit -p .",
     "web:dev": "vite",
     "web:build": "vite build",
     "web:preview": "vite preview",
-    "render:short": "remotion render MVCryptoShort out/Crypto_MV_short.mp4",
-    "render:classic": "remotion render MVCryptoClassic out/Crypto_MV_full_classic.mp4",
-    "render:short:classic": "remotion render MVCryptoShortClassic out/Crypto_MV_short_classic.mp4"
+    "render:classic": "remotion render MVInferenceClassic out/MI50_MV_classic.mp4"
   },
   "dependencies": {
     "@remotion/bundler": "^4.0.529",

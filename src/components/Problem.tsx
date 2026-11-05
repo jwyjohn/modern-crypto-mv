@@ -7,7 +7,7 @@ import {useF, useShot} from './Shot';
 import {ACTS} from './ui';
 
 /**
- * "经典案例" — a narrated case study (formerly the quiz/problem template).
+ * "踩坑记录" — a narrated case study (formerly the quiz/problem template).
  * Title page (year · case · people · narration) → worked stage with narrative beats → result + lesson.
  * There are no questions, options or scores.
  */
@@ -98,7 +98,7 @@ export const Problem: React.FC<ProblemProps> = (p) => {
   const noTxt = String(caseIdx >= 0 ? caseIdx + 1 : p.no).padStart(2, '0');
   const curStep = p.steps ? p.steps.reduce((acc, s, i) => (sf >= s.at ? i : acc), -1) : -1;
   const result = p.answerText ?? (p.options && p.answer !== undefined ? p.options[p.answer] : '');
-  const actIdx = ['sym', 'pk', 'sig', 'zk', 'fr'].findIndex((k) => (id ?? '').startsWith(k)) + 1 || 4;
+  const actIdx = ['hw', 'llm', 'run', 'go', 'ds'].findIndex((k) => (id ?? '').startsWith(k)) + 1 || 3;
   const act = ACTS[actIdx - 1];
   const tn = Math.max(0, Math.min(p.title.length, Math.floor((f - 30) / 4)));
 
@@ -114,7 +114,7 @@ export const Problem: React.FC<ProblemProps> = (p) => {
             <div style={{display: 'flex', alignItems: 'baseline', gap: 24, whiteSpace: 'nowrap'}}>
               <span style={{fontFamily: FONT.press, fontSize: 16, color: COL.dim}}>CASE {noTxt}</span>
               <span style={{fontFamily: FONT.pixel, fontSize: 24, color: COL.dim}}>
-                经典案例 · {act?.zh} {act?.name}
+                踩坑记录 · {act?.zh} {act?.name}
               </span>
             </div>
             {cite && f >= 12 && <div style={{fontFamily: FONT.press, fontSize: 64, lineHeight: '96px', color: COL.text, marginTop: 36}}>{cite.year}</div>}

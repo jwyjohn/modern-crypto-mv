@@ -1,13 +1,11 @@
-// usage: node scripts/at.mjs [short] id:sceneFrame [id:sceneFrame ...] [globalFrame ...]
+// usage: node scripts/at.mjs id:sceneFrame [id:sceneFrame ...] [globalFrame ...]
 // prints the real global frame for each token (scene frames are warped by the pacing system)
 import {build} from 'esbuild';
-const args = process.argv.slice(2);
-const variant = args[0] === 'short' ? 'short' : 'full';
-const toks = variant === 'short' ? args.slice(1) : args;
+const toks = process.argv.slice(2);
 await build({
   stdin: {
     contents: `import {sceneFrame} from './src/timeline';
-      const out = ${JSON.stringify(toks)}.map((t) => { const [id, sf] = t.split(':'); return sf === undefined ? Number(id) : sceneFrame(id, Number(sf), '${variant}'); });
+      const out = ${JSON.stringify(toks)}.map((t) => { const [id, sf] = t.split(':'); return sf === undefined ? Number(id) : sceneFrame(id, Number(sf)); });
       console.log(out.join(' '));`,
     resolveDir: process.cwd(),
     loader: 'ts',

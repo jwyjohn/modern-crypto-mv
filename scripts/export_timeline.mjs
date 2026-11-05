@@ -1,13 +1,10 @@
 import {build} from 'esbuild';
 await build({
   stdin: {
-    contents: `import {TIMELINES} from './src/timeline';
+    contents: `import {SHOTS, TOTAL, ACT_RANGES} from './src/timeline';
       import fs from 'node:fs';
-      for (const [v, file] of [['full', 'audio/timeline.json'], ['short', 'audio/timeline_short.json']]) {
-        const {SHOTS, TOTAL, ACT_RANGES} = TIMELINES[v];
-        fs.writeFileSync(file, JSON.stringify({variant: v, total: TOTAL, acts: ACT_RANGES, shots: SHOTS.map(s => ({id: s.id, start: s.start, end: s.end, mood: s.mood, act: s.act, tier: s.tier, cues: s.cues}))}, null, 1));
-        console.log(v, 'shots', SHOTS.length, 'frames', TOTAL, 'sec', TOTAL / 60);
-      }`,
+      fs.writeFileSync('audio/timeline.json', JSON.stringify({variant: 'full', total: TOTAL, acts: ACT_RANGES, shots: SHOTS.map(s => ({id: s.id, start: s.start, end: s.end, mood: s.mood, act: s.act, tier: s.tier, cues: s.cues}))}, null, 1));
+      console.log('shots', SHOTS.length, 'frames', TOTAL, 'sec', TOTAL / 60);`,
     resolveDir: process.cwd(),
     loader: 'ts',
   },

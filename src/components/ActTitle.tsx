@@ -15,8 +15,6 @@ export const ActTitle: React.FC<{
   topics: string[];
   quote: string;
   by: string;
-  year: number;
-  yearLabel?: string;
 }> = ({num, zh, topics, quote, by}) => {
   const f = useF();
   const act = ACTS[Number(num) - 1];

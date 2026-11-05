@@ -1,6 +1,6 @@
 import React from 'react';
 import {AbsoluteFill, useCurrentFrame} from 'remotion';
-import {CITES} from '../cites';
+import {CITES, scoreAt} from '../cites';
 import {blink, clamp01, COL, eBack, FONT, lerp, PX, quant} from '../theme';
 import {BlockCursor} from './pixel';
 import {useF, useShot} from './Shot';
@@ -156,16 +156,12 @@ export const stageLabel = (id: string, shots: HudShot[]) => {
 };
 
 export const ACTS = [
-  {num: 'I', zh: '第一章', name: '对称密码', en: 'SYMMETRIC CRYPTOGRAPHY'},
-  {num: 'II', zh: '第二章', name: '公钥密码', en: 'PUBLIC-KEY CRYPTOGRAPHY'},
-  {num: 'III', zh: '第三章', name: '数字签名', en: 'DIGITAL SIGNATURES'},
-  {num: 'IV', zh: '第四章', name: '零知识证明', en: 'ZERO-KNOWLEDGE PROOFS'},
-  {num: 'V', zh: '第五章', name: '前沿', en: 'POST-QUANTUM & PRIVACY'},
+  {num: 'I', zh: '第一章', name: '一张卡', en: 'THE CARD'},
+  {num: 'II', zh: '第二章', name: '一个模型', en: 'THE MODEL'},
+  {num: 'III', zh: '第三章', name: '先跑对', en: 'MAKE IT RIGHT'},
+  {num: 'IV', zh: '第四章', name: '脱掉外壳', en: 'DOWN TO THE DRIVER'},
+  {num: 'V', zh: '第五章', name: '猜', en: 'SPECULATE WITH DSPARK'},
 ];
-
-export const YEAR0 = 1800;
-export const YEAR1 = 2030;
-export const yearX = (y: number) => 96 + ((y - YEAR0) / (YEAR1 - YEAR0)) * 1728;
 
 export const ActHUD: React.FC<{shots: HudShot[]}> = ({shots}) => {
   const f = useCurrentFrame();
@@ -175,6 +171,12 @@ export const ActHUD: React.FC<{shots: HudShot[]}> = ({shots}) => {
   const act = ACTS[s.act - 1];
   const cite = CITES[s.id];
   const fq = Math.floor(f / 3) * 3;
+  const steps = shots.filter((x) => x.mood === 'concept' || x.mood === 'problem');
+  const X0 = 96;
+  const X1 = 1140;
+  const sx = (i: number) => Math.round((X0 + (i / Math.max(1, steps.length - 1)) * (X1 - X0)) / 3) * 3;
+  const cur = steps.findIndex((x) => x.id === s.id);
+  const score = scoreAt(s.id, steps.map((x) => x.id));
   return (
     <AbsoluteFill style={{pointerEvents: 'none'}}>
       {/* left: chapter */}
@@ -184,30 +186,31 @@ export const ActHUD: React.FC<{shots: HudShot[]}> = ({shots}) => {
           {act.zh} · {act.name}
         </span>
       </div>
-      {/* right: year · who · work */}
+      {/* right: when · who · work */}
       {cite && (
-        <div style={{position: 'absolute', right: 96, top: 36, maxWidth: 1180, display: 'flex', alignItems: 'baseline', gap: 18, whiteSpace: 'nowrap', overflow: 'hidden'}}>
+        <div style={{position: 'absolute', right: 96, top: 36, maxWidth: 1240, display: 'flex', alignItems: 'baseline', gap: 18, whiteSpace: 'nowrap'}}>
           <span style={{fontFamily: FONT.press, fontSize: 16, color: COL.text}}>{cite.year}</span>
           <span style={{fontFamily: FONT.pixel, fontSize: 24, color: COL.text}}>{cite.who}</span>
           <span style={{fontFamily: FONT.pixel, fontSize: 24, color: COL.dim, overflow: 'hidden', textOverflow: 'ellipsis'}}>{cite.work}</span>
         </div>
       )}
-      {/* chronology ruler */}
+      {/* progress ruler: one tick per step of the film */}
       <svg width={1920} height={60} style={{position: 'absolute', left: 0, top: 84}} shapeRendering="crispEdges">
-        <rect x={yearX(YEAR0)} y={9} width={yearX(YEAR1) - yearX(YEAR0)} height={3} fill={COL.line} />
-        {[1800, 1850, 1900, 1950, 2000].map((y) => (
-          <g key={y}>
-            <rect x={yearX(y)} y={3} width={3} height={15} fill={COL.line} />
-            <text x={yearX(y) + 9} y={30} fontFamily={FONT.press} fontSize={12} fill={COL.dim}>
-              {y}
-            </text>
-          </g>
+        <rect x={X0} y={9} width={X1 - X0} height={3} fill={COL.line} />
+        {steps.map((x, i) => (
+          <rect key={x.id} x={sx(i)} y={6} width={3} height={9} fill={i <= cur ? COL.ink : COL.dim} />
         ))}
-        {Object.values(CITES).map((c, i) => (
-          <rect key={i} x={yearX(c.year)} y={6} width={3} height={9} fill={COL.dim} />
-        ))}
-        {cite && <rect x={yearX(cite.year) - 3} y={blink(fq, 60, 48) ? 0 : 3} width={9} height={blink(fq, 60, 48) ? 21 : 15} fill={COL.ink} />}
+        {cur >= 0 && <rect x={sx(cur) - 3} y={blink(fq, 60, 48) ? 0 : 3} width={9} height={blink(fq, 60, 48) ? 21 : 15} fill={COL.ink} />}
       </svg>
+      {/* scoreboard: the best numbers at this point of the story, 128k context */}
+      {score && (
+        <div style={{position: 'absolute', right: 96, top: 78, display: 'flex', alignItems: 'baseline', gap: 18, whiteSpace: 'nowrap'}}>
+          <span style={{fontFamily: FONT.press, fontSize: 12, color: COL.dim}}>128K</span>
+          <span style={{fontFamily: FONT.pixel, fontSize: 24, color: score.bad ? COL.red : COL.text}}>
+            首 token {score.ttft} · 解码 {score.tps} tok/s{score.bad ? ' · 输出是错的' : ''}
+          </span>
+        </div>
+      )}
     </AbsoluteFill>
   );
 };

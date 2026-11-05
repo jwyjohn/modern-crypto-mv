@@ -2,7 +2,26 @@
 
 **MI50老矣 尚能饭否**
 
-一部讲解 LLM 推理优化的 Remotion 动画短片：五章、三十多个场景，从一张 2018 年的 AMD Radeon Instinct MI50 的基本架构讲起，到 LLM 推理的基本概念，再按真实的优化顺序一步步讲到 DSpark。目标观众是学过计算机组成和操作系统的本科生。
+一部讲解 LLM 推理优化的 Remotion 动画短片。全片只有一条主线：**一张 2018 年的 AMD Radeon Instinct MI50 有 785 GB/s 的显存带宽，怎么才算用完。** 五章、三十多个场景，从这张卡的基本架构和 LLM 推理的基本概念讲起，再按真实的优化顺序一步步算账。目标观众是学过计算机组成和操作系统的本科生。
+
+全片围绕一条式子：
+
+```
+tok/s = 785 GB/s × 利用率 U ÷ 每提交一个 token 读的字节
+```
+
+每一步优化都在动这条式子里的一项。128k 上下文，单流 decode：
+
+| 阶段 | 每 token 读 | 带宽利用率 U | tok/s |
+|---|---|---|---|
+| 起点 | 约 5 GB | 21% | 32 |
+| W4 megakernel（输出错误） | 约 1.7 GB | 29% | 132 |
+| W8，修好精度 | 2.57 GB | 55% | 167 |
+| 把等待叠在一起 | 2.57 GB | 66% | 201 |
+| Go · 直连 KFD | 2.57 GB | 68% | 208 |
+| DSpark | 1.35 GB | 58% | 334 |
+
+推导见 [`docs/BANDWIDTH.md`](docs/BANDWIDTH.md)，完整的优化记录见 [`docs/OPTIMIZATION_REPORT.md`](docs/OPTIMIZATION_REPORT.md)。
 
 1920×1080 / 60fps，时间轴驱动；一套代码同时出「渲染成片」和「网页实时版」，配乐由脚本按时间轴程序化生成。
 
@@ -10,7 +29,7 @@
 
 ![封面](assets/cover.png)
 
-画面是灰白黑「纸与墨」的极简像素风，语气是工程记录；概念场景标注**年份 · 作者 · 论文**，优化步骤标注**日期**，页眉有一条进度标尺和一块记分牌，记录当时 128k 上下文的首 token 时间和解码速度。**所有数字都来自真实测量**，数据和完整报告见 [`pub-lfm3-1.7b-mi50/docs/OPTIMIZATION_REPORT.md`](https://github.com/jwyjohn/lfm3-1.7b-mi50/blob/dspark/docs/OPTIMIZATION_REPORT.md)。
+画面是灰白黑「纸与墨」的极简像素风，语气是工程记录；概念场景标注**年份 · 作者 · 论文**，优化步骤标注**日期**。页眉有一条进度标尺和一块带宽表，显示当时的利用率、每 token 读的字节和解码速度。**所有数字都来自真实测量**，估算的地方写明是估算。
 
 ## 效果预览
 
@@ -18,7 +37,7 @@
 |---|---|
 | ![片头](assets/screenshots/00-intro.jpg) | ![CU](assets/screenshots/01-chip.jpg) |
 
-| KV cache 与物理上限 | 把等待叠在一起 |
+| KV cache 与带宽上限 | 把等待叠在一起 |
 |---|---|
 | ![KV](assets/screenshots/02-kv.jpg) | ![重叠](assets/screenshots/03-overlap.jpg) |
 
@@ -32,17 +51,17 @@
 
 ## 内容
 
-| 章 | 内容 |
-|---|---|
-| 序 | 片头（`generate("hello")` 等了 238 秒）· 总览 |
-| I 一张卡 | CU、SIMD、wave、block · 存储层级（寄存器、LDS、L2、HBM2 的实测）· `v_dot4` 与 `v_dot2` · Roofline 与功耗墙 |
-| II 一个模型 | 生成循环、prefill 与 decode · 24 层结构 · Q/K/V、GQA、RoPE · KV cache 与 311 tok/s 的物理上限 · 两种瓶颈 · 量化与 KL |
-| III 先跑对 | 238 秒的起点 · megakernel · Flash attention · W8A8 GEMM · **案例：快，但全错了** · 精度方案 · 把等待叠在一起 |
-| IV 脱掉外壳 | 直连 KFD、AQL 队列 · L2 回写与 agent scope · **案例：第 0 层的旧值** · **案例：偶尔卡死的启动** · 单文件与体积 |
-| V 猜 | draft 与 verify，`tok/s = τ / R` · DSpark drafter · 一轮的账单 · 离屋顶多远 · 逐项账单 · **案例：int8 的价格** · **案例：这个中位数是抽签** · 越过 block 边界 |
-| 尾 | 七天的结果 · 还没解决的问题 · 致谢 |
+| 章 | 主线上的位置 | 内容 |
+|---|---|---|
+| 序 | 这条式子 | 片头（`generate("hello")` 等了 238 秒，带宽只用了五分之一）· 总览 |
+| I 一条路 | 785 GB/s | CU、SIMD、wave、block · 存储层级 · 怎么量带宽（理论 1024，实测 785，L2 曲线）· `v_dot4` 与 `v_dot2` · Roofline 与功耗墙 |
+| II 一张账单 | GB / token | 生成循环、prefill 与 decode · 权重的账（1.76 GB）· Q/K/V、GQA、RoPE · KV cache 与 311 tok/s 的上限 · 每字节几次运算（decode 撞带宽，prefill 撞算力）· 量化与 KL |
+| III 先读对 | 少读，但不能读错 | 21% 的起点 · megakernel · 支线：Flash attention、W8A8 GEMM · **案例：快，但全错了** · 2.57 GB 的正确基线 |
+| IV 读得满 | U：55% → 68% | 把等待叠在一起 · 在途 load，让 GEMV 贴着上限读 · **案例：第 0 层的旧值** · 直连 KFD、AQL 队列 · L2 回写与 agent scope |
+| V 读得值 | GB / token：2.57 → 1.35 | draft 与 verify，`tok/s = τ / R` · DSpark drafter · 一轮里内存的忙与闲 · 离屋顶多远 · 逐项账单 · **案例：int8 的价格** · **案例：这个中位数是抽签** · 越过 block 边界 |
+| 尾 | 还剩 42% | 七天的账 · 和 vLLM 比 · 还没用上的 · 致谢 |
 
-讲解顺序就是优化发生的顺序。每个优化都讲清楚三件事：为什么慢、改了什么、量出来多少。失败和错误也保留：第三章的崩坏、第五章的混沌，都是实际发生过的。
+讲解顺序基本就是优化发生的顺序（「读得满」里的 GEMV 和驱动部分与 DSpark 的时间有交叠，按主线归到一起）。失败和错误也保留：第三章的崩坏、第五章的混沌，都是实际发生过的。
 
 ## 工程结构
 

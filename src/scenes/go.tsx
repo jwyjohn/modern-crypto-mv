@@ -12,16 +12,16 @@ import {Bar, BarRow, Box, fl, Line, ramp, Say, Stage, T, Table, Wire} from './li
 export const GoTitle: React.FC = () => (
   <ActTitle
     num="04"
-    zh="脱掉外壳"
-    en="DOWN TO THE DRIVER"
+    zh="读得满"
+    en="KEEP THE MEMORY BUSY"
     color={COL.ink}
-    topics={['直连 KFD', 'AQL 队列', 'L2 回写', '两处竞争', '一个文件']}
-    quote="kernel 已经够快了，慢的是它外面那一圈"
-    by="1100 行 Go 代替整个 ROCm 用户态"
+    topics={['叠起等待', '在途 load', '一处竞争', '直连 KFD', 'L2 回写']}
+    quote="字节一个没少，只是不再让内存闲着"
+    by="利用率 55% → 68%"
   />
 );
 
-/* ---------- IV.1 the stack ---------- */
+/* ---------- the stack ---------- */
 const OLD = ['vLLM · Python', 'PyTorch', 'HIP · ROCr', 'comgr · LLVM'];
 const S0 = 24;
 const S1 = 180;
@@ -88,12 +88,12 @@ export const GoStack: React.FC = () => {
         )}
         {f >= S3 + 90 && <Say who={YUZU} x={1416} y={624} text={'我只要一个队列、\n一个设备。'} f={f} at={S3 + 90} w={252} s={6} left />}
       </Stage>
-      <Caption title="直连驱动" en="TALK TO KFD DIRECTLY" color={T.ink} desc="ROCm 能做一切；这里只用到一个队列、一个设备、几个预编译的 kernel" delay={24} />
+      <Caption title="直连驱动" en="TALK TO KFD DIRECTLY" color={T.ink} desc="kernel 之外的每一毫秒，内存都闲着。所以把外面那一圈全拿掉" delay={24} />
     </AbsoluteFill>
   );
 };
 
-/* ---------- IV.2 L2 writeback ---------- */
+/* ---------- L2 writeback ---------- */
 const W0 = 30;
 const W1 = 270;
 const W2 = 540;
@@ -146,15 +146,15 @@ export const GoL2: React.FC = () => {
             <Line x={96} y={762} text="· 运行中要改的数据必须由 GPU 写：CPU 直接写显存（BAR）会绕过 L2，L2 里的旧值还在" f={f} at={W2 + 40} />
           </g>
         )}
-        {fl(f, W3) && <Box x={1296} y={684} w={528} h={108} inv label="128k: 200.5 → 208.1" sub="驱动每 token 只多 0.04 ms" />}
+        {fl(f, W3) && <Box x={1296} y={684} w={528} h={108} inv label="带宽 66% → 68%" sub="128k：200.5 → 208.1，驱动每 token 只多 0.04 ms" />}
         {f >= W0 && !blink && f < W1 && <rect x={870} y={348} width={12} height={36} fill={T.red} />}
       </Stage>
-      <Caption title="缓存一致性" en="WHO NEEDS THE FLUSH?" color={T.ink} desc="两边的 kernel 耗时相同，decode 能超过 vLLM，主要靠省下这一次回写" delay={24} />
+      <Caption title="缓存一致性" en="WHO NEEDS THE FLUSH?" color={T.ink} desc="两边 kernel 耗时相同。省下这次回写，利用率从 66% 到 68%" delay={24} />
     </AbsoluteFill>
   );
 };
 
-/* ---------- IV.3 case: the h_old race ---------- */
+/* ---------- case: the h_old race ---------- */
 const RACE = {
   card: 300,
   steps: [
@@ -173,13 +173,13 @@ export const GoRace: React.FC = () => (
     tag="竞争"
     title="第 0 层的旧值"
     q={[
-      ['同一个 kernel，放到自己写的驱动下，', {t: '超过 16 个 block', m: true}, ' 就开始算错。'],
-      ['ROCr 下同样的逐位比较测试却能通过。'],
+      ['为了不让内存闲着，kernel 在等 barrier 之前就预取下一阶段的数据。'],
+      ['放到自己写的驱动下，', {t: '超过 16 个 block', m: true}, ' 就开始算错。ROCr 下同样的逐位比较却能通过。'],
     ]}
-    brief="时序依赖：kernel 一直是错的，只是以前没撞上"
+    brief="预取抢跑了：kernel 一直是错的，只是以前没撞上"
     {...RACE}
     answerText="预取移到 barrier 之后"
-    insight="不同驱动的时序不同。能暴露问题的测试只有一种：同样的输入，多次运行，logits 逐位相同。"
+    insight="叠起等待是有代价的：load 不能早于数据写好。能抓住这种错的测试只有一种：多次运行，logits 逐位相同。"
   >
     {(sf) => {
       const t = (n: number) => ramp(sf, n, 30);
@@ -254,156 +254,4 @@ export const GoRace: React.FC = () => (
   </Problem>
 );
 
-/* ---------- IV.4 case: the VM race ---------- */
-const VM = {
-  card: 300,
-  steps: [
-    {at: 30, label: '现象'},
-    {at: 220, label: '根因'},
-    {at: 450, label: '修复'},
-  ],
-  reveal: 600,
-};
-export const GoVmCues: Cue[] = probCues(VM, [[80, 'error']]);
-
-export const GoVm: React.FC = () => (
-  <Problem
-    no={3}
-    color={T.ink}
-    tag="页表"
-    title="偶尔卡死的启动"
-    q={[
-      ['在 vLLM 旁边启动时，程序偶尔', {t: '卡死', c: COL.red}, '。'],
-      ['正常运行时完全没事，直到某个 wave 被抢占。'],
-      ['任何进程的队列变化，都会触发抢占。'],
-    ]}
-    brief="用 debugfs 遍历页表，看到有一项不见了"
-    {...VM}
-    answerText="kfd.Open 等 200 ms"
-    insight="ROCr 两次调用之间间隔够长，所以从来没遇到。它的「慢」恰好是这个竞争的解法。"
-  >
-    {(sf) => (
-      <Stage>
-        {sf >= 30 && (
-          <g>
-            <Box x={96} y={STAGE_TOP + 24} w={420} h={84} label="打开 render 节点" size={24} />
-            <Wire x0={516} y0={STAGE_TOP + 66} x1={576} y1={STAGE_TOP + 66} />
-            <Box x={582} y={STAGE_TOP + 24} w={420} h={84} inv label="ACQUIRE_VM" sub="KFD 写 trap handler 的页表项" />
-            <Bar x={96} y={STAGE_TOP + 138} w={1100} h={42} t={ramp(sf, 80, 60)} color={T.red} />
-            {sf >= 140 && (
-              <Txt x={120} y={STAGE_TOP + 159} size={24} anchor="start" color={T.invText}>
-                内核的异步页表更新还在跑，约 1 ms
-              </Txt>
-            )}
-          </g>
-        )}
-        {sf >= 220 && (
-          <g>
-            <Txt x={96} y={STAGE_TOP + 240} size={24} anchor="start" color={T.red}>
-              两者一重叠：刚写好的页目录项被覆盖了
-            </Txt>
-            <Line x={96} y={STAGE_TOP + 288} text="进程照常运行，因为平时用不到 trap handler（抢占时保存现场的代码）" f={sf} at={240} />
-            <Line x={96} y={STAGE_TOP + 330} text="被抢占的 wave 要跳进 trap handler，取不到指令，队列随之卡死" f={sf} at={280} />
-            <Line x={96} y={STAGE_TOP + 372} text="vLLM 启动时的内存压缩让 KFD 重启队列，正好触发" f={sf} at={320} />
-          </g>
-        )}
-        {sf >= 450 && (
-          <g>
-            <Table
-              x={1236}
-              y={STAGE_TOP + 216}
-              cols={[300, 288]}
-              head={['只建队列的进程', 'CPF 故障']}
-              rows={[
-                ['修复前 约 1500 次', '2 次'],
-                ['修复后 约 600 次', '0 次'],
-              ]}
-              f={sf}
-              at={450}
-              step={24}
-              rowH={48}
-            />
-            <Txt x={1236} y={STAGE_TOP + 390} size={24} anchor="start" color={T.dim}>
-              次数太少，还不能下结论
-            </Txt>
-          </g>
-        )}
-      </Stage>
-    )}
-  </Problem>
-);
-
-/* ---------- IV.5 one file ---------- */
-const P0 = 30;
-const P1 = 270;
-const P2 = 510;
-
-export const GoBinCues: Cue[] = [
-  [P0, 'step'],
-  [P1, 'bell'],
-  [P2, 'reveal'],
-];
-
-const PL = (mib: number) => (mib / 2400) * 1560;
-
-export const GoBin: React.FC = () => {
-  const f = useF();
-  return (
-    <AbsoluteFill>
-      <Stage>
-        <Txt x={96} y={186} size={24} anchor="start" color={T.dim}>
-          Go 的链接器不接受 2 GB 以上的数据段，所以权重接在 ELF 后面，启动时映射自己
-        </Txt>
-        {fl(f, P0) && (
-          <g>
-            <Txt x={240} y={246} size={24} anchor="end">
-              原来
-            </Txt>
-            <rect x={258} y={222} width={PL(8)} height={48} fill={T.ink} />
-            <Box x={258 + PL(8)} y={222} w={PL(1490)} h={48} label="int8 权重 1.5 GB" size={24} dark />
-            <Box x={258 + PL(1498)} y={222} w={PL(260)} h={48} label="LM head" size={24} />
-            <Box x={258 + PL(1758)} y={222} w={PL(500)} h={48} label="embedding" size={24} dark />
-            <Txt x={258 + PL(2300)} y={246} size={24} anchor="start">
-              2.3 GB
-            </Txt>
-          </g>
-        )}
-        {fl(f, P1) && (
-          <g>
-            <Txt x={96} y={318} size={24} anchor="start" color={T.dim}>
-              不存能算出来的东西
-            </Txt>
-            <Line x={96} y={360} text="· prefill 布局：和 decode 同一批 int8，只是排列不同。启动时现算，少存 1.5 GB" f={f} at={P1} />
-            <Line x={96} y={402} text="· LM head：就是量化后的 embedding。现算，少存 260 MB" f={f} at={P1 + 40} />
-            <Line x={96} y={444} text="· drafter 的 head 裁剪和 k/v 投影：从已有的行直接抄" f={f} at={P1 + 80} />
-            <Line x={96} y={486} text="· 量化是逐行独立的，所以这些行和单独量化的结果逐字节相同" f={f} at={P1 + 120} color={T.sub} />
-          </g>
-        )}
-        {fl(f, P2) && (
-          <g>
-            <Txt x={96} y={540} size={24} anchor="start" color={T.dim}>
-              再做熵编码（Huffman，分块并行解码）
-            </Txt>
-            <BarRow x={96} y={564} name="int8 权重" nameW={210} frac={0.93} max={720} value="只省 7%：接近随机噪声" t={ramp(f, P2, 24)} h={30} />
-            <BarRow x={96} y={606} name="embedding" nameW={210} frac={0.664} max={720} value="省 34%：BF16 转 fp16，低 3 位全是 0" t={ramp(f, P2 + 24, 24)} h={30} />
-            <Txt x={240} y={702} size={24} anchor="end">
-              现在
-            </Txt>
-            <rect x={258} y={678} width={PL(8)} height={48} fill={T.ink} />
-            <Box x={258 + PL(8)} y={678} w={PL(1539)} h={48} label="权重 + DSpark drafter 1.6 GB" size={24} inv />
-            <Box x={258 + PL(1547)} y={678} w={PL(332)} h={48} label="embedding" size={24} dark />
-            <Txt x={258 + PL(1900)} y={702} size={36} anchor="start">
-              1.97 GB
-            </Txt>
-            <Txt x={96} y={768} size={24} anchor="start" color={T.sub}>
-              还多装了一个模型，反而小了 15%。启动从 5 秒变成 7.5 秒
-            </Txt>
-          </g>
-        )}
-      </Stage>
-      <Caption title="一个文件" en="SELF-CONTAINED ELF" color={T.ink} desc="不需要 Python，不需要 ROCm，不需要 libc。拷到另一台同样的机器就能跑" delay={24} />
-    </AbsoluteFill>
-  );
-};
-
-export {ALICE, SAGE, FONT};
+export {ALICE, SAGE, FONT, Bar, Line, Table};

@@ -156,11 +156,11 @@ export const stageLabel = (id: string, shots: HudShot[]) => {
 };
 
 export const ACTS = [
-  {num: 'I', zh: '第一章', name: '一张卡', en: 'THE CARD'},
-  {num: 'II', zh: '第二章', name: '一个模型', en: 'THE MODEL'},
-  {num: 'III', zh: '第三章', name: '先跑对', en: 'MAKE IT RIGHT'},
-  {num: 'IV', zh: '第四章', name: '脱掉外壳', en: 'DOWN TO THE DRIVER'},
-  {num: 'V', zh: '第五章', name: '猜', en: 'SPECULATE WITH DSPARK'},
+  {num: 'I', zh: '第一章', name: '一条路', en: 'THE BANDWIDTH'},
+  {num: 'II', zh: '第二章', name: '一张账单', en: 'BYTES PER TOKEN'},
+  {num: 'III', zh: '第三章', name: '先读对', en: 'READ THE RIGHT BYTES'},
+  {num: 'IV', zh: '第四章', name: '读得满', en: 'KEEP THE MEMORY BUSY'},
+  {num: 'V', zh: '第五章', name: '读得值', en: 'MORE TOKENS PER BYTE'},
 ];
 
 export const ActHUD: React.FC<{shots: HudShot[]}> = ({shots}) => {
@@ -173,7 +173,7 @@ export const ActHUD: React.FC<{shots: HudShot[]}> = ({shots}) => {
   const fq = Math.floor(f / 3) * 3;
   const steps = shots.filter((x) => x.mood === 'concept' || x.mood === 'problem');
   const X0 = 96;
-  const X1 = 1140;
+  const X1 = 960;
   const sx = (i: number) => Math.round((X0 + (i / Math.max(1, steps.length - 1)) * (X1 - X0)) / 3) * 3;
   const cur = steps.findIndex((x) => x.id === s.id);
   const score = scoreAt(s.id, steps.map((x) => x.id));
@@ -202,12 +202,16 @@ export const ActHUD: React.FC<{shots: HudShot[]}> = ({shots}) => {
         ))}
         {cur >= 0 && <rect x={sx(cur) - 3} y={blink(fq, 60, 48) ? 0 : 3} width={9} height={blink(fq, 60, 48) ? 21 : 15} fill={COL.ink} />}
       </svg>
-      {/* scoreboard: the best numbers at this point of the story, 128k context */}
+      {/* the bandwidth account at this point of the story, 128k context */}
       {score && (
-        <div style={{position: 'absolute', right: 96, top: 78, display: 'flex', alignItems: 'baseline', gap: 18, whiteSpace: 'nowrap'}}>
+        <div style={{position: 'absolute', right: 96, top: 78, display: 'flex', alignItems: 'center', gap: 18, whiteSpace: 'nowrap'}}>
           <span style={{fontFamily: FONT.press, fontSize: 12, color: COL.dim}}>128K</span>
+          <span style={{fontFamily: FONT.pixel, fontSize: 24, color: score.bad ? COL.red : COL.text}}>带宽 {score.u}%</span>
+          <span style={{display: 'inline-block', width: 180, height: 18, background: COL.panel, outline: `3px solid ${COL.ink}`}}>
+            <span style={{display: 'block', width: Math.round((180 * score.u) / 100 / 6) * 6, height: 18, background: score.bad ? COL.red : COL.ink}} />
+          </span>
           <span style={{fontFamily: FONT.pixel, fontSize: 24, color: score.bad ? COL.red : COL.text}}>
-            首 token {score.ttft} · 解码 {score.tps} tok/s{score.bad ? ' · 输出是错的' : ''}
+            每 token {score.gb} GB · {score.tps} tok/s{score.bad ? ' · 错' : ''}
           </span>
         </div>
       )}

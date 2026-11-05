@@ -8,9 +8,9 @@ import {useF} from '../components/Shot';
 import {COL, FONT, PX, snap} from '../theme';
 import {Bar, BarRow, Box, fl, Line, ramp, Stage, T, Table} from './lib';
 
-/* ---------- the result ---------- */
+/* ---------- the result: the bandwidth account, step by step ---------- */
 const A0 = 30;
-const A1 = 360;
+const A1 = 420;
 const A2 = 660;
 
 export const ResultCues: Cue[] = [
@@ -19,13 +19,96 @@ export const ResultCues: Cue[] = [
   [A2, 'chime'],
 ];
 
+const STAGES: [string, string, number, string, boolean?][] = [
+  ['起点', '约 5 GB', 21, '32'],
+  ['W4（输出错误）', '约 1.7 GB', 29, '132', true],
+  ['W8，修好精度', '2.57 GB', 55, '167'],
+  ['把等待叠在一起', '2.57 GB', 66, '201'],
+  ['Go · 直连 KFD', '2.57 GB', 68, '208'],
+  ['DSpark', '1.35 GB', 58, '334'],
+];
+
 export const Result: React.FC = () => {
   const f = useF();
   return (
     <AbsoluteFill>
       <Stage>
-        <Txt x={96} y={60} size={48} anchor="start">
-          七天的结果
+        <Txt x={96} y={72} size={48} anchor="start">
+          七天的账
+        </Txt>
+        <Txt x={1824} y={72} size={24} anchor="end" color={T.dim}>
+          128k 上下文，单流 decode
+        </Txt>
+        <Txt x={96} y={138} size={24} anchor="start" color={T.dim}>
+          阶段
+        </Txt>
+        <Txt x={720} y={138} size={24} anchor="end" color={T.dim}>
+          每 token 读
+        </Txt>
+        <Txt x={768} y={138} size={24} anchor="start" color={T.dim}>
+          带宽利用率 U（785 GB/s = 100%）
+        </Txt>
+        <Txt x={1824} y={138} size={24} anchor="end" color={T.dim}>
+          tok/s
+        </Txt>
+        <rect x={96} y={162} width={1728} height={3} fill={T.ink} />
+        {STAGES.map(([n, gb, u, tps, bad], i) => {
+          if (!fl(f, A0 + i * 54)) return null;
+          const y = 204 + i * 72;
+          const c = bad ? T.red : T.ink;
+          return (
+            <g key={n}>
+              <Txt x={96} y={y} size={36} anchor="start" color={c}>
+                {n}
+              </Txt>
+              <Txt x={720} y={y} size={36} anchor="end" color={c} family={FONT.pixelMono}>
+                {gb}
+              </Txt>
+              <rect x={768} y={y - 21} width={720} height={42} fill={T.paper} stroke={T.ink} strokeWidth={3} />
+              <Bar x={768} y={y - 21} w={720 * (u / 100)} h={42} t={ramp(f, A0 + i * 54, 30)} color={c} />
+              <Txt x={1512} y={y} size={36} anchor="start" color={c} family={FONT.pixelMono}>
+                {u}%
+              </Txt>
+              <Txt x={1824} y={y} size={36} anchor="end" color={c} family={FONT.pixelMono}>
+                {tps}
+              </Txt>
+            </g>
+          );
+        })}
+        {fl(f, A1) && (
+          <g>
+            <Box x={96} y={636} w={1092} h={120} inv label="785 GB/s × 58% ÷ 1.35 GB ≈ 337 tok/s" sub="开头那条式子，和实测的 334 对得上" />
+            <Box x={1236} y={636} w={588} h={120} label="每个字节换来的 token：翻倍" sub="利用率：还有 42% 没用上" />
+          </g>
+        )}
+        {fl(f, A2) && (
+          <Txt x={96} y={804} size={24} anchor="start" color={T.sub}>
+            三根杠杆都动过：量化把每 token 从 5 GB 压到 2.57 GB，megakernel 和重叠把利用率从 21% 提到 68%，DSpark 把 2.57 GB 换成 1.35 GB
+          </Txt>
+        )}
+      </Stage>
+    </AbsoluteFill>
+  );
+};
+
+/* ---------- compared with vLLM ---------- */
+const CMP0 = 30;
+const CMP1 = 300;
+const CMP2 = 540;
+
+export const CompareCues: Cue[] = [
+  [CMP0, 'step'],
+  [CMP1, 'step'],
+  [CMP2, 'chime'],
+];
+
+export const Compare: React.FC = () => {
+  const f = useF();
+  return (
+    <AbsoluteFill>
+      <Stage>
+        <Txt x={96} y={72} size={48} anchor="start">
+          和 vLLM 上的同一个 kernel 比
         </Txt>
         <Table
           x={96}
@@ -40,47 +123,29 @@ export const Result: React.FC = () => {
             ['128k', '44.738 s', '44.343 s', '301', '307'],
           ]}
           f={f}
-          at={A0}
+          at={CMP0}
           step={24}
           rowH={48}
         />
-        {fl(f, A1) && (
+        {fl(f, CMP1) && (
           <g>
-            <Txt x={96} y={438} size={24} anchor="start" color={T.dim}>
-              128k 上下文，一路走来
+            <Txt x={96} y={462} size={24} anchor="start">
+              单流中位数要看第五章的说明。72 条多流总体打平（均值 559 → 545），把循环流分开看，正常文本每档快 5% 到 16%。
             </Txt>
-            {[
-              ['起点', 238, 32],
-              ['megakernel + 修复', 47, 167],
-              ['重叠等待', 46.5, 201],
-              ['Go · KFD', 46, 208],
-              ['DSpark', 44.3, 307],
-            ].map(([n, a, b], i) => (
-              <g key={String(n)}>
-                <Txt x={96} y={492 + i * 48} size={24} anchor="start">
-                  {n}
-                </Txt>
-                <Bar x={420} y={474 + i * 48} w={((a as number) / 238) * 540} h={36} t={ramp(f, A1 + i * 18, 30)} hollow />
-                <Txt x={420 + ((a as number) / 238) * 540 + 12} y={492 + i * 48} size={24} anchor="start" family={FONT.pixelMono} color={T.sub}>
-                  {a} s
-                </Txt>
-                <Bar x={1140} y={474 + i * 48} w={((b as number) / 311) * 540} h={36} t={ramp(f, A1 + i * 18, 30)} />
-                <Txt x={1140 + ((b as number) / 311) * 540 + 12} y={492 + i * 48} size={24} anchor="start" family={FONT.pixelMono} color={T.sub}>
-                  {b}
-                </Txt>
-              </g>
-            ))}
+            <Txt x={96} y={510} size={24} anchor="start" color={T.dim}>
+              最接近真实使用的一组：MATH + GPQA 各 20 题，greedy，长输出，自然结束
+            </Txt>
+            <BarRow x={96} y={540} name="不用 draft" nameW={210} frac={293 / 640} max={900} value="MATH 293 · GPQA 291 tok/s" t={ramp(f, CMP1, 24)} hollow />
+            <BarRow x={96} y={588} name="vLLM DSpark" nameW={210} frac={616 / 640} max={900} value="MATH 616 · GPQA 505 tok/s" t={ramp(f, CMP1 + 24, 24)} hollow />
+            <BarRow x={96} y={636} name="这里 DSpark" nameW={210} frac={639.5 / 640} max={900} value="MATH 640 · GPQA 508 tok/s" t={ramp(f, CMP1 + 48, 24)} />
           </g>
         )}
-        {fl(f, A2) && (
+        {fl(f, CMP2) && (
           <g>
-            <Txt x={96} y={768} size={24} anchor="start">
-              解码的单流中位数要看第五章的说明。72 条多流里两边总体打平，把循环流分开看，正常文本 Go 快 5% 到 16%。
+            <Txt x={96} y={732} size={24} anchor="start" color={T.sub}>
+              采样路径（temperature 0.6）：8k 191 → 260，128k 151 → 189。可执行文件 1.97 GB，启动 7.5 秒。
             </Txt>
-            <Txt x={96} y={810} size={24} anchor="start" color={T.sub}>
-              真实问答（MATH + GPQA，greedy）：不用 draft 293 / 291 tok/s，DSpark 639 / 508。采样路径 8k 191 → 260。文件 1.97 GB。
-            </Txt>
-            <Txt x={96} y={852} size={24} anchor="start" color={T.dim}>
+            <Txt x={96} y={774} size={24} anchor="start" color={T.dim}>
               DSpark 只在 temperature 0 时生效；默认 temperature 0.1 走采样路径，约 260 tok/s。
             </Txt>
           </g>
@@ -92,11 +157,11 @@ export const Result: React.FC = () => {
 
 /* ---------- what is still open ---------- */
 const OPEN: [string, string][] = [
+  ['还有 42% 的带宽', '128k 每轮 6 ms，内存只忙 58%。8k 上注意力、norm、barrier 合计约 1.45 ms，都不怎么读内存'],
+  ['8 个 wave 把内存和计算叠起来', '微基准证明能叠（781 → 777 GB/s，计算还有 53%），估算净收益约 2%，改动太大，没有做'],
   ['785 GB/s 还是 1024 GB/s？', '持续读只有理论值的 77%。换分块、在途深度、load 标志都没变化，原因没查清'],
   ['178 W', '读内存就用掉 174 W，计算只好降频。要突破得改 powerplay 或者降压，这是硬件层面的决定'],
-  ['GEMV 的 int8 x', 'KL 约为 fp16 的 6 倍，top-1 多翻 1 到 4 处。要回退，驱动得先支持 scratch'],
-  ['DSpark 权重还在训练', '现在用的是中途的 step 10260。新权重来了，策略要重新回放'],
-  ['8 wave 重叠', '微基准证明能把内存和计算叠在一个 CU 上，估算净收益约 2%，改动太大，没有做'],
+  ['DSpark 权重还在训练', '现在用的是中途的 step 10260。τ 涨一点，每 token 的字节就少一点，策略要重新回放'],
 ];
 
 export const OpenCues: Cue[] = OPEN.map((_, i): Cue => [40 + i * 96, 'step']);
@@ -107,7 +172,7 @@ export const Open: React.FC = () => {
     <AbsoluteFill>
       <Stage>
         <Txt x={96} y={96} size={48} anchor="start">
-          还没解决的
+          还没用上的
         </Txt>
         {OPEN.map(([a, b], i) =>
           fl(f, 40 + i * 96) ? (
@@ -196,7 +261,7 @@ export const Logo: React.FC = () => {
       )}
       {fl(f, 150) && (
         <div style={{position: 'absolute', left: 0, right: 0, top: 570, textAlign: 'center', fontFamily: FONT.pixel, fontSize: 36, lineHeight: '48px', color: COL.sub}}>
-          先对，再快；每一步都量出来
+          785 GB/s，一步一步算清楚
         </div>
       )}
       {f >= 200 && CAST.map((c, i) => <Sprite key={i} map={c} x={660 + i * 120} y={660} s={PX * 1.5} screenX={660 + i * 120} />)}

@@ -12,11 +12,11 @@ import {Bar, BarRow, Box, Cells, fl, ramp, Say, Stage, T, Wire} from './lib';
 export const HwTitle: React.FC = () => (
   <ActTitle
     num="01"
-    zh="一张卡"
-    en="THE CARD"
+    zh="一条路"
+    en="THE BANDWIDTH"
     color={COL.ink}
-    topics={['CU 与 wave', '存储层级', '点积指令', 'Roofline', '功耗墙']}
-    quote="先弄清楚硬件能做什么，再谈优化"
+    topics={['CU 与 wave', '存储层级', '怎么量带宽', '点积指令', 'Roofline', '功耗墙']}
+    quote="60 个 CU 都要从同一条路上取数据。这条路有多宽？"
     by="AMD Radeon Instinct MI50 · 32 GB · 2018"
   />
 );
@@ -145,7 +145,84 @@ export const HwMem: React.FC = () => {
   );
 };
 
-/* ---------- I.3 dot-product instructions ---------- */
+/* ---------- I.3 measuring the bandwidth ---------- */
+const N0 = 30;
+const N1 = 270;
+const N2 = 510;
+const N3 = 750;
+
+export const HwBandCues: Cue[] = [
+  [N0, 'step'],
+  [N1, 'reveal'],
+  [N2, 'bell'],
+  [N3, 'chime'],
+];
+
+const LOOPS: [string, number][] = [
+  ['8 MB', 1605],
+  ['16 MB', 1242],
+  ['32 MB', 883],
+  ['128 MB 以上', 790],
+];
+
+export const HwBand: React.FC = () => {
+  const f = useF();
+  return (
+    <AbsoluteFill>
+      <Stage>
+        {fl(f, N0) && (
+          <g>
+            <Txt x={96} y={186} size={24} anchor="start" color={T.dim}>
+              纸面上：4 个 HBM2 堆叠，4096 根数据线
+            </Txt>
+            {[0, 1, 2, 3].map((i) => (
+              <Box key={i} x={96 + i * 126} y={210} w={114} h={84} label="HBM2" size={24} dark />
+            ))}
+            <Txt x={624} y={252} size={36} anchor="start" family={FONT.pixelMono}>
+              4096 bit × 2 Gb/s ÷ 8 = 1024 GB/s
+            </Txt>
+          </g>
+        )}
+        {fl(f, N1) && (
+          <g>
+            <Txt x={96} y={342} size={24} anchor="start" color={T.dim}>
+              实测：写一个只读内存的 kernel，持续跑
+            </Txt>
+            <BarRow x={96} y={366} name="理论" nameW={150} frac={1} max={1320} value="1024 GB/s" t={ramp(f, N1, 30)} hollow />
+            <BarRow x={96} y={414} name="实测" nameW={150} frac={785 / 1024} max={1320} value="785 GB/s · 77%" t={ramp(f, N1 + 30, 48)} color={T.red} />
+            <Txt x={96} y={486} size={24} anchor="start" color={T.sub}>
+              换分块（1–64 KB）、在途深度（6–48）、load 标志，都不变。fclk 和 mclk 已是最高档。少的 23% 原因没查清
+            </Txt>
+          </g>
+        )}
+        {fl(f, N2) && (
+          <g>
+            <Txt x={96} y={540} size={24} anchor="start" color={T.dim}>
+              循环读不同大小的内存：L2 能帮多少
+            </Txt>
+            {LOOPS.map(([n, v], i) => (
+              <BarRow key={n} x={96} y={564 + i * 42} name={n} nameW={210} frac={v / 1605} max={600} value={`${v} GB/s`} h={30} t={ramp(f, N2 + i * 18, 24)} hollow={v > 800} />
+            ))}
+            <Txt x={1110} y={582} size={24} anchor="start" color={T.sub}>
+              8 MB 以内几乎全命中 L2。
+            </Txt>
+            <Txt x={1110} y={624} size={24} anchor="start" color={T.sub}>
+              可权重有 1.76 GB，比 L2 大 200 倍。
+            </Txt>
+          </g>
+        )}
+        {fl(f, N3) && (
+          <g>
+            <Box x={1110} y={648} w={714} h={120} inv label="785 GB/s 就是总预算" sub="CU 的返回通道合计约 1469 GB/s，不是它在限速" />
+          </g>
+        )}
+      </Stage>
+      <Caption title="这条路有多宽" en="MEASURE IT" color={T.ink} desc="别信纸面数字。后面所有的利用率，都是相对这个 785 GB/s 算的" delay={24} />
+    </AbsoluteFill>
+  );
+};
+
+/* ---------- I.4 dot-product instructions ---------- */
 const A = [12, -7, 90, 3];
 const B = [55, 2, -11, 8];
 const D0 = 60;
@@ -197,17 +274,17 @@ export const HwDot: React.FC = () => {
             <BarRow x={96} y={618} name="int8" nameW={150} frac={47 / 50} max={1400} value="47" t={ramp(f, D2, 48)} />
             <BarRow x={96} y={666} name="fp16" nameW={150} frac={24.6 / 50} max={1400} value="24.6" t={ramp(f, D2, 48)} hollow />
             <Txt x={96} y={744} size={24} anchor="start" color={T.sub}>
-              把数据压成 int8，不只是省内存：同样的时钟多算一倍，寄存器还减半
+              读来的每个字节，最后都要被这两条指令吃掉。int8 既少读一半字节，又吃得快一倍
             </Txt>
           </g>
         )}
       </Stage>
-      <Caption title="点积指令" en="V_DOT4 / V_DOT2" color={T.ink} desc="后面所有矩阵运算，最后都落到这两条指令上" delay={24} />
+      <Caption title="点积指令" en="V_DOT4 / V_DOT2" color={T.ink} desc="读进来的字节，都在这里变成结果" delay={24} />
     </AbsoluteFill>
   );
 };
 
-/* ---------- I.4 roofline + power ---------- */
+/* ---------- I.5 roofline + power ---------- */
 const P0 = 36;
 const P1 = 240;
 const P2 = 480;
@@ -273,9 +350,9 @@ export const HwRoof: React.FC = () => {
             <BarRow x={1080} y={432} name="sclk 负载" nameW={180} frac={1530 / 1800} max={360} value="1530 MHz" t={ramp(f, P2 + 60, 30)} color={T.red} />
           </g>
         )}
-        {f >= P3 && <Say who={EVE} x={1080} y={504} text={'内存把电用完了，\n计算只好降频 15%。\n省能量的指令，能换回频率。'} f={f} at={P3} w={540} />}
+        {f >= P3 && <Say who={EVE} x={1080} y={504} text={'读内存就用掉 174 W，\n计算只好降频 15%。\n带宽和算力，抢的是同一份电。'} f={f} at={P3} w={540} />}
       </Stage>
-      <Caption title="Roofline" en="THE ROOF" color={T.ink} desc="离屋顶多远，就是还能优化多少。屋顶之上，什么技巧都没用" delay={24} />
+      <Caption title="Roofline" en="THE ROOF" color={T.ink} desc="离屋顶多远，就是还能拿回多少。屋顶之上，什么技巧都没用" delay={24} />
     </AbsoluteFill>
   );
 };

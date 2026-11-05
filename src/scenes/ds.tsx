@@ -12,12 +12,12 @@ import {Bar, BarRow, Box, fl, Line, ramp, Say, Stage, T, Wire} from './lib';
 export const DsTitle: React.FC = () => (
   <ActTitle
     num="05"
-    zh="猜"
-    en="SPECULATE WITH DSPARK"
+    zh="读得值"
+    en="MORE TOKENS PER BYTE"
     color={COL.ink}
-    topics={['draft 与 verify', 'τ 和 R', 'DSpark drafter', '一轮的账单', 'roofline', '混沌']}
+    topics={['draft 与 verify', 'τ 和 R', 'DSpark drafter', '内存忙与闲', 'roofline', '混沌']}
     quote="读一遍权重的钱已经付了，不如一次多验证几个"
-    by="decode 物理上限的一条缝"
+    by="带宽上限 311 tok/s 的一条缝"
   />
 );
 
@@ -97,13 +97,13 @@ export const DsIdea: React.FC = () => {
             <Txt x={1032} y={702} size={24} anchor="start">
               τ：每轮提交几个 token · R：每轮多少时间
             </Txt>
-            <Txt x={1032} y={744} size={24} anchor="start" color={T.sub}>
-              M = 4 只比 M = 1 贵 9%，猜对一半就赚了
+            <Txt x={1032} y={744} size={24} anchor="start" color={T.red}>
+              128k：每 token 读的字节从 2.57 GB 降到 1.35 GB
             </Txt>
           </g>
         )}
       </Stage>
-      <Caption title="draft 与 verify" en="SPECULATIVE DECODING" color={T.ink} desc="理论上结果和一个一个算相同，只是更快。上限被抬高了 τ 倍" delay={24} />
+      <Caption title="draft 与 verify" en="SPECULATIVE DECODING" color={T.ink} desc="字节只读一遍，提交 τ 个 token。311 tok/s 的上限被抬高了 τ 倍" delay={24} />
     </AbsoluteFill>
   );
 };
@@ -191,9 +191,9 @@ export const DsDrafter: React.FC = () => {
             </Txt>
           </g>
         )}
-        {fl(f, P[5]) && <Box x={1080} y={654} w={744} h={120} inv label="DSpark · 2.6 亿参数 · 只有 3 层" sub="和 verify 共用 embedding 和 head" />}
+        {fl(f, P[5]) && <Box x={1080} y={654} w={744} h={120} inv label="每轮只多读约 0.2 GB" sub="DSpark：2.6 亿参数，3 层，和 verify 共用 embedding" />}
       </Stage>
-      <Caption title="DSpark" en="THE DRAFTER" color={T.ink} desc="它不看文本，它看 verify 模型内部的中间状态，所以又小又准" delay={24} />
+      <Caption title="DSpark" en="THE DRAFTER" color={T.ink} desc="它看 verify 模型内部的中间状态，所以又小又准：多读 0.2 GB，换来 τ 翻倍" delay={24} />
     </AbsoluteFill>
   );
 };
@@ -229,6 +229,9 @@ export const DsRound: React.FC = () => {
         <Txt x={96} y={186} size={24} anchor="start" color={T.dim}>
           8k 上下文，M ≈ 3.8，一轮约 4.2 ms（数字来自分相 trace）
         </Txt>
+        <Txt x={1824} y={186} size={24} anchor="end" color={T.sub}>
+          下面那条黑线：内存在忙
+        </Txt>
         {PH.map((p, i) => {
           const w = p.ms * scale;
           const xx = x;
@@ -237,6 +240,7 @@ export const DsRound: React.FC = () => {
           return (
             <g key={p.name}>
               <rect x={xx} y={210} width={w - 3} height={84} fill={p.inv ? T.inv : p.red ? T.red : T.paper2} stroke={T.ink} strokeWidth={p.inv || p.red ? 0 : 3} />
+              <rect x={xx} y={300} width={w - 3} height={6} fill={i <= 1 ? T.ink : T.line} />
               {w > 250 ? (
                 <Txt x={xx + w / 2} y={252} size={24} color={p.inv ? T.invText : T.ink}>
                   {p.name}
@@ -277,9 +281,9 @@ export const DsRound: React.FC = () => {
             <Line x={96} y={636} text="被拒的位置（红）下一轮直接覆盖；K/V 写在临时页，提交时才拷进 KV cache" f={f} at={Y2 + 42} />
           </g>
         )}
-        {fl(f, Y3) && <Box x={96} y={684} w={1728} h={108} inv label="8k：3.7 ms 一个 token → 每轮 4.1 ms 提交 2.5 个" sub="vLLM 上已经到了 528 tok/s，是原来的 1.8 倍" />}
+        {fl(f, Y3) && <Box x={96} y={684} w={1728} h={108} inv label="128k：带宽 68% → 58%，每 token 2.57 → 1.35 GB，208 → 334 tok/s" sub="利用率反而降了：注意力和 drafter 的计算变多。但每个字节换来的 token 翻了一倍" />}
       </Stage>
-      <Caption title="一轮的账单" en="ONE ROUND OF THE MEGAKERNEL" color={T.ink} desc="draft、verify、commit 全在 GPU 上完成，CPU 只负责把 token 发出去" delay={24} />
+      <Caption title="一轮的账单" en="ONE ROUND OF THE MEGAKERNEL" color={T.ink} desc="draft、verify、commit 全在 GPU 上。读得没以前满，但每个字节都更值" delay={24} />
     </AbsoluteFill>
   );
 };

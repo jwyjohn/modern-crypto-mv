@@ -12,11 +12,11 @@ import {Bar, BarRow, Box, Cells, fl, Line, ramp, Say, Stage, T, Table, Wire} fro
 export const LlmTitle: React.FC = () => (
   <ActTitle
     num="02"
-    zh="一个模型"
-    en="THE MODEL"
+    zh="一张账单"
+    en="BYTES PER TOKEN"
     color={COL.ink}
-    topics={['prefill 与 decode', '24 层结构', 'Q K V', 'KV cache', '量化']}
-    quote="每生成一个 token，都要把整个模型走一遍"
+    topics={['prefill 与 decode', '权重的账', 'Q K V', 'KV cache', '每字节几次运算', '量化']}
+    quote="每生成一个 token，都要把整个模型读一遍"
     by="LiquidAI/LFM3-1.7B"
   />
 );
@@ -84,7 +84,7 @@ export const LlmLoop: React.FC = () => {
           </g>
         )}
       </Stage>
-      <Caption title="推理就是一个循环" en="THE GENERATION LOOP" color={T.ink} desc="prefill 读输入，decode 写输出。两段的瓶颈完全不同，要分开优化" delay={24} />
+      <Caption title="推理就是一个循环" en="THE GENERATION LOOP" color={T.ink} desc="prefill 读输入，decode 写输出。这部片子主要算 decode 的账" delay={24} />
     </AbsoluteFill>
   );
 };
@@ -92,8 +92,14 @@ export const LlmLoop: React.FC = () => {
 /* ---------- II.2 the layer stack ---------- */
 const KINDS = [0, 0, 1, 0, 2, 0, 1, 0, 2, 0, 1, 0, 2, 0, 1, 0, 2, 0, 1, 0, 2, 0, 1, 0];
 const LS = 30;
-const LD = 330;
-const LF = 570;
+const LD = 300;
+const LF = 540;
+const BILL: [string, number, boolean][] = [
+  ['FFN · 24 层', 1132, true],
+  ['混合层', 233, false],
+  ['out', 101, false],
+  ['LM head', 262, true],
+];
 
 export const LlmLayersCues: Cue[] = [
   [LS, 'blip'],
@@ -157,14 +163,21 @@ export const LlmLayers: React.FC = () => {
         )}
         {fl(f, LF) && (
           <g>
-            <Box x={96} y={618} w={1728} h={108} inv label="FFN 一层就有两个大矩阵：15360 × 2048 和 2048 × 7680" sub="decode 大部分时间都在读这些权重" size={36} />
-            <Txt x={96} y={768} size={24} anchor="start" color={T.sub}>
-              所以 GEMV（权重矩阵 × 一个向量）和内存带宽，决定了 decode 的速度
+            <Txt x={96} y={612} size={24} anchor="start" color={T.dim}>
+              decode 一个 token，要把这些 int8 权重各读一遍
+            </Txt>
+            {BILL.map(([n, mb, inv], i) => {
+              const x0 = BILL.slice(0, i).reduce((acc, r) => acc + (r[1] as number), 0);
+              const sc = 1728 / 1728;
+              return <Box key={n as string} x={96 + x0 * sc} y={636} w={(mb as number) * sc - 3} h={90} label={n} sub={`${mb} MB`} inv={inv as boolean} size={24} />;
+            })}
+            <Txt x={96} y={768} size={24} anchor="start">
+              合计 1.73 GB，加上 scale 约 1.76 GB。一半以上在 FFN：所以这笔账的主角就是 GEMV（矩阵 × 一个向量）
             </Txt>
           </g>
         )}
       </Stage>
-      <Caption title="24 层，三种" en="LAYER STACK" color={T.ink} desc="这个模型的 13 层卷积很便宜，贵的是注意力和权重本身" delay={24} />
+      <Caption title="权重的账" en="24 LAYERS, 1.76 GB" color={T.ink} desc="账单的第一项：1.76 GB 权重，不管上下文多长，每个 token 都要读一遍" delay={24} />
     </AbsoluteFill>
   );
 };
@@ -319,15 +332,15 @@ export const LlmKv: React.FC = () => {
           </g>
         )}
       </Stage>
-      <Caption title="KV cache" en="AND THE DECODE FLOOR" color={T.ink} desc="省掉了重算，却省不掉读。这条算术决定了后面每一步的方向" delay={24} />
+      <Caption title="KV cache" en="AND THE DECODE FLOOR" color={T.ink} desc="账单合计 2.57 GB。省掉了重算，省不掉读，这条算术决定了后面每一步" delay={24} />
     </AbsoluteFill>
   );
 };
 
-/* ---------- II.5 two bottlenecks ---------- */
+/* ---------- II.5 operations per byte ---------- */
 const C0 = 36;
 const C1 = 300;
-const C2 = 540;
+const C2 = 570;
 
 export const LlmCostCues: Cue[] = [
   [C0, 'step'],
@@ -340,56 +353,56 @@ export const LlmCost: React.FC = () => {
   return (
     <AbsoluteFill>
       <Stage>
+        <Txt x={96} y={186} size={24} anchor="start" color={T.dim}>
+          关键问题：每读 1 字节权重，要做几次运算？假设带宽跑满 785 GB/s，算力够不够？
+        </Txt>
         {fl(f, C0) && (
           <g>
-            <Txt x={96} y={192} size={36} anchor="start">
-              prefill：撞屋顶（计算）
+            <Box x={96} y={216} w={840} h={210} />
+            <Txt x={120} y={258} size={36} anchor="start">
+              decode：1 到 8 个 token
             </Txt>
-            <Txt x={96} y={240} size={24} anchor="start" color={T.sub}>
-              128k 预填充的账：
+            <Txt x={120} y={306} size={24} anchor="start" color={T.sub}>
+              每字节 M 次运算。M = 4 时需要 3.1 TOPS
             </Txt>
-            <BarRow x={96} y={270} name="注意力" nameW={150} frac={32 / 45} max={620} value="约 32 s" t={ramp(f, C0, 48)} />
-            <BarRow x={96} y={318} name="线性层" nameW={150} frac={13 / 45} max={620} value="约 13 s" t={ramp(f, C0 + 48, 48)} hollow />
-            <Txt x={96} y={396} size={24} anchor="start" color={T.sub}>
-              上下文翻倍，注意力翻 4 倍。tps 从 8k 的 7000 掉到 128k 的 2700。
-            </Txt>
+            <BarRow x={120} y={336} name="需要" nameW={90} frac={3.1 / 47} max={480} value="3.1 TOPS" t={ramp(f, C0, 30)} h={24} />
+            <BarRow x={120} y={372} name="峰值" nameW={90} frac={1} max={480} value="47 TOPS" t={ramp(f, C0 + 30, 30)} h={24} hollow />
           </g>
         )}
         {fl(f, C1) && (
           <g>
-            <Txt x={1008} y={192} size={36} anchor="start">
-              decode：撞斜坡（内存）
+            <Box x={984} y={216} w={840} h={210} />
+            <Txt x={1008} y={258} size={36} anchor="start">
+              prefill：T = 2048 个 token
             </Txt>
-            <Txt x={1008} y={240} size={24} anchor="start" color={T.sub}>
-              8k 上下文，一轮时间的账（M ≈ 3.8）：
+            <Txt x={1008} y={306} size={24} anchor="start" color={T.sub}>
+              每字节 2048 次运算：一份权重被 T 个 token 共用
             </Txt>
-            <BarRow x={1008} y={270} name="读权重" nameW={150} frac={2235 / 2235} max={460} value="2235 µs" t={ramp(f, C1, 48)} />
-            <BarRow x={1008} y={318} name="注意力" nameW={150} frac={807 / 2235} max={460} value="807 µs" t={ramp(f, C1 + 24, 48)} hollow />
-            <BarRow x={1008} y={366} name="其余" nameW={150} frac={800 / 2235} max={460} value="800 µs" t={ramp(f, C1 + 48, 48)} hollow />
+            <BarRow x={1008} y={336} name="需要" nameW={90} frac={1} max={480} value="1608 TOPS" t={ramp(f, C1, 30)} h={24} color={T.red} />
+            <BarRow x={1008} y={372} name="峰值" nameW={90} frac={47 / 1608} max={480} value="47 TOPS" t={ramp(f, C1 + 30, 30)} h={24} hollow />
           </g>
         )}
         {fl(f, C2) && (
-          <g>
-            <Table
-              x={96}
-              y={468}
-              cols={[420, 660, 648]}
-              head={['', 'prefill', 'decode']}
-              rows={[
-                ['算什么', 'GEMM：矩阵 × 矩阵', 'GEMV：矩阵 × 向量'],
-                ['受限于', '计算：指令条数和时钟', '内存：每个 token 读一遍权重'],
-                ['优化手段', '分块、用 int8 指令、减少开销', '并行读、减少等待、一次验证多个'],
-              ]}
-              f={f}
-              at={C2}
-              step={36}
-              size={24}
-              rowH={66}
-            />
-          </g>
+          <Table
+            x={96}
+            y={456}
+            cols={[420, 660, 648]}
+            head={['', 'decode', 'prefill']}
+            rows={[
+              ['Roofline 上的位置', '斜坡：带宽不够用', '屋顶：算力不够用'],
+              ['算什么', 'GEMV：矩阵 × 向量', 'GEMM：矩阵 × 矩阵'],
+              ['128k 上的账', '至少读 2.57 GB，3.2 ms', '注意力约 32 s，线性层约 13 s'],
+              ['这部片子', '主线：带宽怎么用满', '支线：分块、用 int8 指令'],
+            ]}
+            f={f}
+            at={C2}
+            step={30}
+            size={24}
+            rowH={60}
+          />
         )}
       </Stage>
-      <Caption title="两种瓶颈" en="TWO BOTTLENECKS" color={T.ink} desc="同一个模型，同一张卡，两段路程要用两套方法" delay={24} />
+      <Caption title="每字节几次运算" en="OPERATIONAL INTENSITY" color={T.ink} desc="同一个模型，decode 撞带宽，prefill 撞算力。后面的主线是 decode" delay={24} />
     </AbsoluteFill>
   );
 };
@@ -482,7 +495,7 @@ export const LlmQuant: React.FC = () => {
         )}
         {f >= Q3 && <Say who={ALICE} x={96} y={702} text={'省内存、提速度，都用 int8。\n但每次压缩，都要拿 KL 量一下。'} f={f} at={Q3 + 12} w={600} s={5} />}
       </Stage>
-      <Caption title="量化" en="QUANTIZATION" color={T.ink} desc="用 8 位整数和一个比例，近似一组浮点数。代价是误差" delay={24} />
+      <Caption title="量化" en="QUANTIZATION" color={T.ink} desc="第一根杠杆：同样的权重少读一半字节。代价是误差，所以要拿 KL 量" delay={24} />
     </AbsoluteFill>
   );
 };

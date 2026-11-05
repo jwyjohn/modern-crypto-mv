@@ -1,48 +1,48 @@
 {
  "variant": "full",
- "total": 51240,
+ "total": 52800,
  "acts": [
   {
    "key": "intro",
    "color": "#141414",
    "s": 0,
-   "e": 2040
+   "e": 2160
   },
   {
    "key": "hw",
    "color": "#141414",
-   "s": 2040,
-   "e": 8040
+   "s": 2160,
+   "e": 9840
   },
   {
    "key": "llm",
    "color": "#141414",
-   "s": 8040,
-   "e": 16440
+   "s": 9840,
+   "e": 18720
   },
   {
    "key": "run",
    "color": "#141414",
-   "s": 16440,
-   "e": 26760
+   "s": 18720,
+   "e": 27120
   },
   {
    "key": "go",
    "color": "#141414",
-   "s": 26760,
-   "e": 34440
+   "s": 27120,
+   "e": 34800
   },
   {
    "key": "ds",
    "color": "#141414",
-   "s": 34440,
-   "e": 47160
+   "s": 34800,
+   "e": 47640
   },
   {
    "key": "fin",
    "color": "#141414",
-   "s": 47160,
-   "e": 51240
+   "s": 47640,
+   "e": 52800
   }
  ],
  "shots": [
@@ -164,38 +164,43 @@
   {
    "id": "overview",
    "start": 1080,
-   "end": 2040,
+   "end": 2160,
    "mood": "overview",
    "act": 0,
    "tier": "S",
    "cues": [
     [
      36,
+     "reveal",
+     null
+    ],
+    [
+     283,
      "step",
      null
     ],
     [
-     142,
+     368,
      "step",
      null
     ],
     [
-     248,
+     452,
      "step",
      null
     ],
     [
-     353,
+     537,
      "step",
      null
     ],
     [
-     459,
+     622,
      "step",
      null
     ],
     [
-     600,
+     742,
      "chime",
      null
     ]
@@ -203,8 +208,8 @@
   },
   {
    "id": "hw_title",
-   "start": 2040,
-   "end": 2400,
+   "start": 2160,
+   "end": 2520,
    "mood": "title",
    "act": 1,
    "tier": "T",
@@ -212,8 +217,8 @@
   },
   {
    "id": "hw_chip",
-   "start": 2400,
-   "end": 3840,
+   "start": 2520,
+   "end": 3960,
    "mood": "concept",
    "act": 1,
    "tier": "A",
@@ -242,8 +247,8 @@
   },
   {
    "id": "hw_mem",
-   "start": 3840,
-   "end": 5280,
+   "start": 3960,
+   "end": 5400,
    "mood": "concept",
    "act": 1,
    "tier": "A",
@@ -281,9 +286,39 @@
    ]
   },
   {
+   "id": "hw_band",
+   "start": 5400,
+   "end": 7080,
+   "mood": "concept",
+   "act": 1,
+   "tier": "A",
+   "cues": [
+    [
+     40,
+     "step",
+     null
+    ],
+    [
+     364,
+     "reveal",
+     null
+    ],
+    [
+     757,
+     "bell",
+     null
+    ],
+    [
+     1151,
+     "chime",
+     null
+    ]
+   ]
+  },
+  {
    "id": "hw_dot",
-   "start": 5280,
-   "end": 6480,
+   "start": 7080,
+   "end": 8280,
    "mood": "concept",
    "act": 1,
    "tier": "B",
@@ -307,8 +342,8 @@
   },
   {
    "id": "hw_roof",
-   "start": 6480,
-   "end": 8040,
+   "start": 8280,
+   "end": 9840,
    "mood": "concept",
    "act": 1,
    "tier": "A",
@@ -337,8 +372,8 @@
   },
   {
    "id": "llm_title",
-   "start": 8040,
-   "end": 8400,
+   "start": 9840,
+   "end": 10200,
    "mood": "title",
    "act": 2,
    "tier": "T",
@@ -346,8 +381,8 @@
   },
   {
    "id": "llm_loop",
-   "start": 8400,
-   "end": 9840,
+   "start": 10200,
+   "end": 11640,
    "mood": "concept",
    "act": 2,
    "tier": "A",
@@ -376,24 +411,24 @@
   },
   {
    "id": "llm_layers",
-   "start": 9840,
-   "end": 10920,
+   "start": 11640,
+   "end": 12960,
    "mood": "concept",
    "act": 2,
-   "tier": "B",
+   "tier": "A",
    "cues": [
     [
-     35,
+     40,
      "blip",
      null
     ],
     [
-     375,
+     400,
      "step",
      null
     ],
     [
-     651,
+     724,
      "reveal",
      null
     ]
@@ -401,8 +436,8 @@
   },
   {
    "id": "llm_attn",
-   "start": 10920,
-   "end": 12480,
+   "start": 12960,
+   "end": 14520,
    "mood": "concept",
    "act": 2,
    "tier": "A",
@@ -431,8 +466,8 @@
   },
   {
    "id": "llm_kv",
-   "start": 12480,
-   "end": 13920,
+   "start": 14520,
+   "end": 15960,
    "mood": "concept",
    "act": 2,
    "tier": "A",
@@ -461,24 +496,24 @@
   },
   {
    "id": "llm_cost",
-   "start": 13920,
-   "end": 15000,
+   "start": 15960,
+   "end": 17280,
    "mood": "concept",
    "act": 2,
-   "tier": "B",
+   "tier": "A",
    "cues": [
     [
-     41,
+     48,
      "step",
      null
     ],
     [
-     341,
+     400,
      "step",
      null
     ],
     [
-     617,
+     764,
      "reveal",
      null
     ]
@@ -486,8 +521,8 @@
   },
   {
    "id": "llm_quant",
-   "start": 15000,
-   "end": 16440,
+   "start": 17280,
+   "end": 18720,
    "mood": "concept",
    "act": 2,
    "tier": "A",
@@ -516,8 +551,8 @@
   },
   {
    "id": "run_title",
-   "start": 16440,
-   "end": 16800,
+   "start": 18720,
+   "end": 19080,
    "mood": "title",
    "act": 3,
    "tier": "T",
@@ -525,8 +560,8 @@
   },
   {
    "id": "run_base",
-   "start": 16800,
-   "end": 17880,
+   "start": 19080,
+   "end": 20160,
    "mood": "concept",
    "act": 3,
    "tier": "B",
@@ -550,8 +585,8 @@
   },
   {
    "id": "run_mega",
-   "start": 17880,
-   "end": 19440,
+   "start": 20160,
+   "end": 21720,
    "mood": "concept",
    "act": 3,
    "tier": "A",
@@ -580,38 +615,8 @@
   },
   {
    "id": "run_flash",
-   "start": 19440,
-   "end": 20880,
-   "mood": "concept",
-   "act": 3,
-   "tier": "A",
-   "cues": [
-    [
-     40,
-     "blip",
-     null
-    ],
-    [
-     320,
-     "step",
-     null
-    ],
-    [
-     644,
-     "reveal",
-     null
-    ],
-    [
-     1037,
-     "bell",
-     null
-    ]
-   ]
-  },
-  {
-   "id": "run_gemm",
-   "start": 20880,
-   "end": 21960,
+   "start": 21720,
+   "end": 23040,
    "mood": "concept",
    "act": 3,
    "tier": "B",
@@ -622,12 +627,42 @@
      null
     ],
     [
-     239,
+     273,
      "step",
      null
     ],
     [
-     516,
+     549,
+     "reveal",
+     null
+    ],
+    [
+     908,
+     "bell",
+     null
+    ]
+   ]
+  },
+  {
+   "id": "run_gemm",
+   "start": 23040,
+   "end": 23880,
+   "mood": "concept",
+   "act": 3,
+   "tier": "C",
+   "cues": [
+    [
+     30,
+     "blip",
+     null
+    ],
+    [
+     210,
+     "step",
+     null
+    ],
+    [
+     450,
      "reveal",
      null
     ]
@@ -635,8 +670,8 @@
   },
   {
    "id": "run_p_collapse",
-   "start": 21960,
-   "end": 24000,
+   "start": 23880,
+   "end": 25920,
    "mood": "problem",
    "act": 3,
    "tier": "A",
@@ -680,8 +715,8 @@
   },
   {
    "id": "run_fix",
-   "start": 24000,
-   "end": 25200,
+   "start": 25920,
+   "end": 27120,
    "mood": "concept",
    "act": 3,
    "tier": "B",
@@ -704,11 +739,20 @@
    ]
   },
   {
+   "id": "go_title",
+   "start": 27120,
+   "end": 27480,
+   "mood": "title",
+   "act": 4,
+   "tier": "T",
+   "cues": []
+  },
+  {
    "id": "run_overlap",
-   "start": 25200,
-   "end": 26760,
+   "start": 27480,
+   "end": 29040,
    "mood": "concept",
-   "act": 3,
+   "act": 4,
    "tier": "A",
    "cues": [
     [
@@ -734,73 +778,39 @@
    ]
   },
   {
-   "id": "go_title",
-   "start": 26760,
-   "end": 27120,
-   "mood": "title",
-   "act": 4,
-   "tier": "T",
-   "cues": []
-  },
-  {
-   "id": "go_stack",
-   "start": 27120,
-   "end": 28560,
+   "id": "run_gemv",
+   "start": 29040,
+   "end": 30480,
    "mood": "concept",
    "act": 4,
    "tier": "A",
    "cues": [
     [
-     240,
-     "whoosh",
-     null
-    ],
-    [
-     520,
+     48,
      "step",
      null
     ],
     [
-     924,
-     "reveal",
-     null
-    ]
-   ]
-  },
-  {
-   "id": "go_l2",
-   "start": 28560,
-   "end": 30000,
-   "mood": "concept",
-   "act": 4,
-   "tier": "A",
-   "cues": [
-    [
-     40,
+     400,
      "step",
      null
     ],
     [
-     364,
+     764,
      "bell",
      null
     ],
     [
-     797,
+     1077,
      "reveal",
-     null
-    ],
-    [
-     1111,
-     "chime",
      null
     ]
    ]
   },
   {
    "id": "go_p_race",
-   "start": 30000,
-   "end": 31680,
+   "start": 30480,
+   "end": 32160,
    "mood": "problem",
    "act": 4,
    "tier": "B",
@@ -843,79 +853,64 @@
    ]
   },
   {
-   "id": "go_p_vm",
-   "start": 31680,
-   "end": 33240,
-   "mood": "problem",
-   "act": 4,
-   "tier": "B",
-   "cues": [
-    [
-     10,
-     "stamp",
-     null
-    ],
-    [
-     335,
-     "whoosh",
-     null
-    ],
-    [
-     375,
-     "step",
-     null
-    ],
-    [
-     591,
-     "step",
-     null
-    ],
-    [
-     853,
-     "step",
-     null
-    ],
-    [
-     1026,
-     "reveal",
-     null
-    ],
-    [
-     432,
-     "error",
-     null
-    ]
-   ]
-  },
-  {
-   "id": "go_bin",
-   "start": 33240,
-   "end": 34440,
+   "id": "go_stack",
+   "start": 32160,
+   "end": 33360,
    "mood": "concept",
    "act": 4,
    "tier": "B",
    "cues": [
     [
-     35,
+     205,
+     "whoosh",
+     null
+    ],
+    [
+     444,
      "step",
      null
     ],
     [
-     311,
+     788,
+     "reveal",
+     null
+    ]
+   ]
+  },
+  {
+   "id": "go_l2",
+   "start": 33360,
+   "end": 34800,
+   "mood": "concept",
+   "act": 4,
+   "tier": "A",
+   "cues": [
+    [
+     40,
+     "step",
+     null
+    ],
+    [
+     364,
      "bell",
      null
     ],
     [
-     669,
+     797,
      "reveal",
+     null
+    ],
+    [
+     1111,
+     "chime",
      null
     ]
    ]
   },
   {
    "id": "ds_title",
-   "start": 34440,
-   "end": 34800,
+   "start": 34800,
+   "end": 35160,
    "mood": "title",
    "act": 5,
    "tier": "T",
@@ -923,8 +918,8 @@
   },
   {
    "id": "ds_idea",
-   "start": 34800,
-   "end": 36480,
+   "start": 35160,
+   "end": 36840,
    "mood": "concept",
    "act": 5,
    "tier": "A",
@@ -958,8 +953,8 @@
   },
   {
    "id": "ds_drafter",
-   "start": 36480,
-   "end": 38160,
+   "start": 36840,
+   "end": 38520,
    "mood": "concept",
    "act": 5,
    "tier": "A",
@@ -998,8 +993,8 @@
   },
   {
    "id": "ds_round",
-   "start": 38160,
-   "end": 39600,
+   "start": 38520,
+   "end": 39960,
    "mood": "concept",
    "act": 5,
    "tier": "A",
@@ -1028,24 +1023,24 @@
   },
   {
    "id": "ds_roof",
-   "start": 39600,
-   "end": 40800,
+   "start": 39960,
+   "end": 41400,
    "mood": "concept",
    "act": 5,
-   "tier": "B",
+   "tier": "A",
    "cues": [
     [
-     35,
+     40,
      "step",
      null
     ],
     [
-     345,
+     404,
      "bell",
      null
     ],
     [
-     738,
+     837,
      "reveal",
      null
     ]
@@ -1053,34 +1048,39 @@
   },
   {
    "id": "ds_tricks",
-   "start": 40800,
-   "end": 42240,
+   "start": 41400,
+   "end": 42720,
    "mood": "concept",
    "act": 5,
-   "tier": "A",
+   "tier": "B",
    "cues": [
     [
-     80,
+     69,
      "step",
      null
     ],
     [
-     176,
+     150,
      "step",
      null
     ],
     [
-     272,
+     232,
      "step",
      null
     ],
     [
-     368,
+     314,
      "step",
      null
     ],
     [
-     464,
+     396,
+     "step",
+     null
+    ],
+    [
+     478,
      "step",
      null
     ],
@@ -1090,22 +1090,17 @@
      null
     ],
     [
-     656,
+     641,
      "step",
      null
     ],
     [
-     752,
+     723,
      "step",
      null
     ],
     [
-     848,
-     "step",
-     null
-    ],
-    [
-     964,
+     822,
      "reveal",
      null
     ]
@@ -1113,8 +1108,8 @@
   },
   {
    "id": "ds_p_int8",
-   "start": 42240,
-   "end": 43920,
+   "start": 42720,
+   "end": 44400,
    "mood": "problem",
    "act": 5,
    "tier": "B",
@@ -1158,8 +1153,8 @@
   },
   {
    "id": "ds_p_chaos",
-   "start": 43920,
-   "end": 45960,
+   "start": 44400,
+   "end": 46440,
    "mood": "problem",
    "act": 5,
    "tier": "A",
@@ -1203,8 +1198,8 @@
   },
   {
    "id": "ds_cross",
-   "start": 45960,
-   "end": 47160,
+   "start": 46440,
+   "end": 47640,
    "mood": "concept",
    "act": 5,
    "tier": "B",
@@ -1228,8 +1223,8 @@
   },
   {
    "id": "fin_result",
-   "start": 47160,
-   "end": 48360,
+   "start": 47640,
+   "end": 48840,
    "mood": "credits",
    "act": 6,
    "tier": "S",
@@ -1240,7 +1235,7 @@
      null
     ],
     [
-     424,
+     495,
      "reveal",
      null
     ],
@@ -1252,9 +1247,34 @@
    ]
   },
   {
+   "id": "fin_compare",
+   "start": 48840,
+   "end": 49920,
+   "mood": "credits",
+   "act": 6,
+   "tier": "S",
+   "cues": [
+    [
+     36,
+     "step",
+     null
+    ],
+    [
+     353,
+     "step",
+     null
+    ],
+    [
+     636,
+     "chime",
+     null
+    ]
+   ]
+  },
+  {
    "id": "fin_open",
-   "start": 48360,
-   "end": 49320,
+   "start": 49920,
+   "end": 50880,
    "mood": "credits",
    "act": 6,
    "tier": "S",
@@ -1288,8 +1308,8 @@
   },
   {
    "id": "fin_credits",
-   "start": 49320,
-   "end": 50520,
+   "start": 50880,
+   "end": 52080,
    "mood": "credits",
    "act": 6,
    "tier": "S",
@@ -1303,8 +1323,8 @@
   },
   {
    "id": "fin_logo",
-   "start": 50520,
-   "end": 51240,
+   "start": 52080,
+   "end": 52800,
    "mood": "logo",
    "act": 6,
    "tier": "S",

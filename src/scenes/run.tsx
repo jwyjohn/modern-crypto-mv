@@ -12,11 +12,11 @@ import {Bar, BarRow, Box, Cells, fl, Line, ramp, Say, Stage, T, Table, Wire} fro
 export const RunTitle: React.FC = () => (
   <ActTitle
     num="03"
-    zh="先跑对"
-    en="MAKE IT RIGHT"
+    zh="先读对"
+    en="READ THE RIGHT BYTES"
     color={COL.ink}
-    topics={['起点', 'megakernel', 'Flash attention', 'W8A8 GEMM', '崩坏与修复', '重叠等待']}
-    quote="最快的错误答案，没有任何价值"
+    topics={['21% 的起点', 'megakernel', 'Flash attention', 'W8A8 GEMM', '读少了就错', '正确的基线']}
+    quote="字节可以少读，但不能读错。最快的错误答案没有价值"
     by="三天，四版内核"
   />
 );
@@ -61,19 +61,22 @@ export const RunBase: React.FC = () => {
         )}
         {fl(f, B2) && (
           <g>
-            <BarRow x={792} y={546} name="物理上限" nameW={150} frac={3.2 / 30.9} max={720} value="3.2 ms" t={ramp(f, B2, 30)} />
-            <BarRow x={792} y={594} name="实际" nameW={150} frac={1} max={720} value="30.9 ms" t={ramp(f, B2 + 30, 48)} color={T.red} />
+            <BarRow x={792} y={546} name="路有多宽" nameW={150} frac={1} max={720} value="785 GB/s" t={ramp(f, B2, 30)} hollow />
+            <BarRow x={792} y={594} name="实际在读" nameW={150} frac={161 / 785} max={720} value="约 161 GB/s · 21%" t={ramp(f, B2 + 30, 48)} color={T.red} />
+            <Txt x={792} y={666} size={24} anchor="start" color={T.sub}>
+              约 5 GB（fp16 权重 3.4 GB + fp16 的 K/V 1.57 GB）÷ 30.9 ms
+            </Txt>
             <Txt x={96} y={624} size={24} anchor="start" color={T.ink}>
-              差 10 倍。
+              只用了 21%。
             </Txt>
             <Txt x={96} y={660} size={24} anchor="start" color={T.sub}>
-              这 90% 不是算力不够，是花在了「不算」上。
+              另外 79% 的时间，内存是闲的。
             </Txt>
           </g>
         )}
-        {fl(f, B2 + 90) && <Say who={SAGE} x={96} y={702} text="账算清楚了：内存够快，时间都浪费在调度上。" f={f} at={B2 + 90} w={720} s={5} />}
+        {fl(f, B2 + 90) && <Say who={SAGE} x={96} y={702} text="路是通的，车没上路。时间都花在调度上了。" f={f} at={B2 + 90} w={720} s={5} />}
       </Stage>
-      <Caption title="起点" en="WHERE WE STARTED" color={T.ink} desc="社区让这张退役的卡还能跑 vLLM。能跑，但离它的能力还差一个数量级" delay={24} />
+      <Caption title="起点" en="WHERE WE STARTED" color={T.ink} desc="社区让这张退役的卡还能跑 vLLM。能跑，但带宽只用上了五分之一" delay={24} />
     </AbsoluteFill>
   );
 };
@@ -142,7 +145,7 @@ export const RunMega: React.FC = () => {
           </g>
         )}
       </Stage>
-      <Caption title="megakernel" en="ONE PERSISTENT LAUNCH" color={T.ink} desc="不让 CPU 插手：从 embedding 到 LM head，GPU 自己一口气走完" delay={24} />
+      <Caption title="megakernel" en="ONE PERSISTENT LAUNCH" color={T.ink} desc="不让 CPU 插手：GPU 一口气走完全部层，内存不再为调度空等" delay={24} />
     </AbsoluteFill>
   );
 };
@@ -229,7 +232,7 @@ export const RunFlash: React.FC = () => {
           </g>
         )}
       </Stage>
-      <Caption title="Flash attention" en="NO MATRIX, JUST RUNNING TOTALS" color={T.ink} desc="精确的注意力，内存只用寄存器。128k 预填充 45 秒里它占 32 秒" delay={24} />
+      <Caption title="Flash attention" en="NO MATRIX, JUST RUNNING TOTALS" color={T.ink} desc="支线：prefill 撞的是算力。这是精确的注意力，128k 预填充 45 秒里它占 32 秒" delay={24} />
     </AbsoluteFill>
   );
 };
@@ -280,7 +283,7 @@ export const RunGemm: React.FC = () => {
           </g>
         )}
       </Stage>
-      <Caption title="W8A8 GEMM" en="TILES ON THE CU" color={T.ink} desc="prefill 的线性层全部换成 int8。权重和 decode 共用同一份" delay={24} />
+      <Caption title="W8A8 GEMM" en="TILES ON THE CU" color={T.ink} desc="支线：prefill 的线性层全部换成 int8，算得快一倍。权重和 decode 共用一份" delay={24} />
     </AbsoluteFill>
   );
 };
@@ -311,7 +314,7 @@ export const RunCollapse: React.FC = () => (
     brief="拿 HF fp32（全精度参考实现）当标准，逐层查 KL"
     {...CASE}
     answerText="KL 2.80 → 约 0"
-    insight="评测必须包含正确性。没有参考答案的性能数字，什么也说明不了。"
+    insight="字节不是越少越好。评测必须包含正确性，没有参考答案的性能数字，什么也说明不了。"
   >
     {(sf) => (
       <Stage>
@@ -361,7 +364,7 @@ export const RunCollapse: React.FC = () => (
         {sf >= 540 && (
           <g>
             <Txt x={96} y={STAGE_TOP + 348} size={24} anchor="start">
-              第三处：decode 权重只用 4 位（W4），模拟 KL 0.3 到 2.4
+              第三处：decode 权重只用 4 位（W4）。每 token 少读 0.9 GB，但模拟 KL 0.3 到 2.4
             </Txt>
             <Txt x={96} y={STAGE_TOP + 396} size={24} anchor="start" color={T.sub}>
               顺手还查到：QKVG 常量写成了 4112（应为 3088），每层多读 2 MB 权重
@@ -431,11 +434,11 @@ export const RunFix: React.FC = () => {
         {fl(f, X2) && (
           <g>
             <Box x={1104} y={480} w={720} h={120} inv label="MATH-500 20 题 90%" sub="20+20 题里没有一题循环" />
-            <Box x={1104} y={624} w={720} h={120} label="代价：128k prefill 3860 → 2692 tok/s" sub="decode 167 tok/s，这才是真正的基线" />
+            <Box x={1104} y={624} w={720} h={120} label="每 token 2.57 GB · 带宽 55%" sub="decode 167 tok/s，这才是真正的基线" />
           </g>
         )}
       </Stage>
-      <Caption title="精度方案" en="FP16 AND INT8 ONLY" color={T.ink} desc="重新从一个正确的基线开始：哪里能压，哪里不能压，都用 KL 量过" delay={24} />
+      <Caption title="精度方案" en="FP16 AND INT8 ONLY" color={T.ink} desc="账单定下来了：每 token 2.57 GB。哪里能压，哪里不能压，都用 KL 量过" delay={24} />
     </AbsoluteFill>
   );
 };
@@ -514,13 +517,90 @@ export const RunOverlap: React.FC = () => {
         )}
         {fl(f, O3) && (
           <g>
-            <BarRow x={96} y={684} name="第一轮" nameW={150} frac={166.8 / 311} max={1300} value="166.8 tok/s" t={ramp(f, O3, 30)} hollow />
-            <BarRow x={96} y={732} name="第二轮" nameW={150} frac={200.8 / 311} max={1300} value="200.8 tok/s" t={ramp(f, O3 + 30, 30)} />
-            <BarRow x={96} y={780} name="上限" nameW={150} frac={1} max={1300} value="311" h={18} t={ramp(f, O3 + 60, 30)} color={T.line} />
+            <BarRow x={96} y={684} name="改之前" nameW={150} frac={55 / 100} max={1200} value="带宽 55% · 166.8 tok/s" t={ramp(f, O3, 30)} hollow />
+            <BarRow x={96} y={732} name="改之后" nameW={150} frac={66 / 100} max={1200} value="带宽 66% · 200.8 tok/s" t={ramp(f, O3 + 30, 30)} />
+            <BarRow x={96} y={780} name="上限" nameW={150} frac={1} max={1200} value="100% · 311" h={18} t={ramp(f, O3 + 60, 30)} color={T.line} />
           </g>
         )}
       </Stage>
-      <Caption title="把等待叠在一起" en="OVERLAP THE WAITS" color={T.ink} desc="等 barrier 和等内存本可以是同一段时间。128k decode 又快了 20%" delay={24} />
+      <Caption title="把等待叠在一起" en="OVERLAP THE WAITS" color={T.ink} desc="等 barrier 时内存本可以在读。字节一个没少，128k decode 快了 20%" delay={24} />
+    </AbsoluteFill>
+  );
+};
+
+/* ---------- IV.2 GEMV at the limit ---------- */
+const V0 = 36;
+const V1 = 300;
+const V2 = 570;
+const V3 = 750;
+
+export const RunGemvCues: Cue[] = [
+  [V0, 'step'],
+  [V1, 'step'],
+  [V2, 'bell'],
+  [V3, 'reveal'],
+];
+
+/** load requests of one wave: a request waits `lat` in memory, then the data is computed on */
+const Flight: React.FC<{y: number; depth: number; t: number; label: string}> = ({y, depth, t, label}) => {
+  const lat = 240;
+  const comp = 60;
+  const step = depth === 1 ? lat + comp : (lat + comp) / depth;
+  const items: React.ReactNode[] = [];
+  const end = 96 + 210 + t * 1440;
+  for (let i = 0; i < 24; i++) {
+    const x = 306 + i * step;
+    const row = i % depth;
+    if (x >= end) break;
+    const yy = y + row * 24;
+    items.push(<rect key={`l${i}`} x={x} y={yy} width={Math.min(lat, end - x)} height={18} fill={T.paper2} stroke={T.ink} strokeWidth={3} />);
+    if (x + lat < end) items.push(<rect key={`c${i}`} x={x + lat} y={yy} width={Math.min(comp, end - x - lat)} height={18} fill={T.ink} />);
+  }
+  return (
+    <g>
+      <Txt x={288} y={y + 9 + (depth - 1) * 12} size={24} anchor="end">
+        {label}
+      </Txt>
+      {items}
+    </g>
+  );
+};
+
+export const RunGemv: React.FC = () => {
+  const f = useF();
+  return (
+    <AbsoluteFill>
+      <Stage>
+        <Txt x={96} y={186} size={24} anchor="start" color={T.dim}>
+          带宽 = 在途字节 ÷ 延迟。灰色是 load 在等内存，黑色是算
+        </Txt>
+        {f >= V0 && <Flight y={216} depth={1} t={ramp(f, V0, 120, 24)} label="在途 1 个" />}
+        {f >= V0 + 90 && <Flight y={258} depth={3} t={ramp(f, V0 + 90, 120, 24)} label="在途 3 个" />}
+        {fl(f, V0 + 180) && (
+          <Txt x={96} y={366} size={24} anchor="start" color={T.sub}>
+            发完 load 不等它，接着算上一批的数据。同样的延迟，同一段时间里读的字节多了 3 倍，一个 wave 也不用空等
+          </Txt>
+        )}
+        {fl(f, V1) && (
+          <g>
+            <Txt x={96} y={420} size={24} anchor="start" color={T.dim}>
+              再把 load 分给所有 block 和 CU
+            </Txt>
+            <Box x={96} y={444} w={558} h={126} label="w2 分 4 个 band 并行" sub="7680 列的矩阵，每个 block 只读自己那一段" size={24} />
+            <Box x={681} y={444} w={558} h={126} label="行地址累加" sub="每单元 65 条标量指令降到 18 条" size={24} />
+            <Box x={1266} y={444} w={558} h={126} label="x 改 int8" sub="算得快了，load 才发得及时" size={24} />
+          </g>
+        )}
+        {fl(f, V2) && (
+          <g>
+            <BarRow x={96} y={606} name="早期 GEMV" nameW={180} frac={650 / 785} max={900} value="约 650 GB/s" t={ramp(f, V2, 30)} hollow />
+            <BarRow x={96} y={654} name="现在 GEMV" nameW={180} frac={770 / 785} max={900} value="770 GB/s" t={ramp(f, V2 + 30, 30)} />
+            <BarRow x={96} y={702} name="上限" nameW={180} frac={1} max={900} value="785 GB/s" h={18} t={ramp(f, V2 + 60, 30)} color={T.line} />
+          </g>
+        )}
+        {fl(f, V3) && <Box x={1416} y={606} w={408} h={132} inv label="98%" sub="GEMV 这段已经贴着上限" size={60} />}
+      </Stage>
+      <Caption title="让 GEMV 贴着上限读" en="LOADS IN FLIGHT" color={T.ink} desc="decode 最大的一笔账做到头了。剩下的差距，都在不读内存的那些阶段" delay={24} />
     </AbsoluteFill>
   );
 };

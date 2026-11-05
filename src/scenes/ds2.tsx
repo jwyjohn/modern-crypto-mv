@@ -133,7 +133,7 @@ export const DsTricks: React.FC = () => {
           );
         })}
       </Stage>
-      <Caption title="逐项账单" en="NOTHING BIG, ALL MEASURED" color={T.ink} desc="没有一招定胜负。小于 1% 的差异不可靠：相同逻辑编译两次也会差这么多" delay={24} />
+      <Caption title="逐项账单" en="NOTHING BIG, ALL MEASURED" color={T.ink} desc="都在抠不读内存的那些时间。小于 1% 的差异不可靠：编译两次也会差这么多" delay={24} />
     </AbsoluteFill>
   );
 };
@@ -252,7 +252,7 @@ export const DsChaos: React.FC = () => (
       ['kernel 没变慢，而是 τ 变了：M 不同，浮点取整就不同，近似打平的位置换一条路，'],
       ['后面的文本和 τ 就全都不一样了。'],
     ]}
-    brief="tok/s = τ / R：R 可以比，单条流的 τ 不能比"
+    brief="GB/token 随 τ 变：R 可以比，单条流的 τ 不能比"
     {...CHAOS}
     answerText="正常文本上 Go 快 5% 到 16%"
     insight="比较 R，用固定序列回放比较策略，用多条流看分布。3 条流的中位数可以汇报，不能用来挑配置。"
@@ -388,7 +388,7 @@ export const DsCross: React.FC = () => {
           </g>
         )}
       </Stage>
-      <Caption title="越过 block 边界" en="DON'T STOP AT THE LINE" color={T.ink} desc="只有自己管调度才做得到的一点优化。它很小，所以报告里只记它真实的大小" delay={24} />
+      <Caption title="越过 block 边界" en="DON'T STOP AT THE LINE" color={T.ink} desc="同一份字节多验证几个。只有自己管调度才做得到，增益很小，就记它真实的大小" delay={24} />
     </AbsoluteFill>
   );
 };

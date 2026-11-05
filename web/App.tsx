@@ -45,7 +45,7 @@ const App: React.FC = () => {
 
   return (
     <div style={{maxWidth: 1280, margin: '0 auto', padding: '24px 16px 64px'}}>
-      <h1 style={{fontSize: 22, margin: '8px 0 4px'}}>榨干一张 MI50 · 网页实时渲染版</h1>
+      <h1 style={{fontSize: 22, margin: '8px 0 4px'}}>榨干一张 MI50 · MI50老矣 尚能饭否</h1>
       <p style={{color: '#4a4a47', margin: '0 0 16px', fontSize: 14}}>
         共 {TOTAL} 帧 / {fmt(TOTAL)}（60fps），浏览器实时播，不用导出 mp4。音频为压缩流播版（mp3，边下边播）。
       </p>

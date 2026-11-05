@@ -189,12 +189,17 @@ export const Logo: React.FC = () => {
         {a.slice(0, n)}
         {n < a.length && <BlockCursor f={f} size={120} on />}
       </div>
+      {fl(f, 110) && (
+        <div style={{position: 'absolute', left: 0, right: 0, top: 480, textAlign: 'center', fontFamily: FONT.pixel, fontSize: 60, lineHeight: '72px', color: COL.text}}>
+          MI50老矣 尚能饭否
+        </div>
+      )}
       {fl(f, 150) && (
-        <div style={{position: 'absolute', left: 0, right: 0, top: 504, textAlign: 'center', fontFamily: FONT.pixel, fontSize: 36, lineHeight: '48px', color: COL.sub}}>
+        <div style={{position: 'absolute', left: 0, right: 0, top: 570, textAlign: 'center', fontFamily: FONT.pixel, fontSize: 36, lineHeight: '48px', color: COL.sub}}>
           先对，再快；每一步都量出来
         </div>
       )}
-      {f >= 200 && CAST.map((c, i) => <Sprite key={i} map={c} x={660 + i * 120} y={636} s={PX * 1.5} screenX={660 + i * 120} />)}
+      {f >= 200 && CAST.map((c, i) => <Sprite key={i} map={c} x={660 + i * 120} y={660} s={PX * 1.5} screenX={660 + i * 120} />)}
     </AbsoluteFill>
   );
 };

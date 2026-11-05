@@ -10,7 +10,8 @@ const TRUE_ = ['我们', '去', '海边'];
 export const Cover: React.FC = () => (
   <AbsoluteFill style={{background: COL.bg}}>
     <div style={{position: 'absolute', left: 90, top: 96, fontFamily: FONT.pixel, fontSize: 132, lineHeight: '156px', color: COL.text}}>榨干一张 MI50</div>
-    <div style={{position: 'absolute', left: 96, top: 276, fontFamily: FONT.press, fontSize: 24, color: COL.dim, letterSpacing: '0.1em'}}>LLM INFERENCE ON A 2018 GPU</div>
+    <div style={{position: 'absolute', left: 96, top: 264, fontFamily: FONT.pixel, fontSize: 72, lineHeight: '84px', color: COL.text}}>MI50老矣 尚能饭否</div>
+    <div style={{position: 'absolute', left: 96, top: 372, fontFamily: FONT.press, fontSize: 24, color: COL.dim, letterSpacing: '0.1em'}}>LLM INFERENCE ON A 2018 GPU</div>
     <Sprite map={ALICE} x={120} y={540} s={24} screenX={120} />
     <Sprite map={BOB} x={1200} y={540} s={24} screenX={1200} />
     {DRAFT.map((w, i) => (

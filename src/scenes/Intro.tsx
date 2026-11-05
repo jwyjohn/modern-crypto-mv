@@ -38,13 +38,18 @@ export const Intro: React.FC = () => {
           {main.slice(0, tn)}
           {tn < main.length && <BlockCursor f={f} size={144} on />}
         </div>
-        {fl(f, TITLE + 72) && (
-          <div style={{position: 'absolute', left: 240, top: 564, fontFamily: FONT.pixel, fontSize: 48, lineHeight: '72px', color: COL.sub, whiteSpace: 'nowrap'}}>
+        {fl(f, TITLE + 60) && (
+          <div style={{position: 'absolute', left: 240, top: 534, fontFamily: FONT.pixel, fontSize: 60, lineHeight: '72px', color: COL.text, whiteSpace: 'nowrap'}}>
+            MI50老矣 尚能饭否
+          </div>
+        )}
+        {fl(f, TITLE + 100) && (
+          <div style={{position: 'absolute', left: 240, top: 642, fontFamily: FONT.pixel, fontSize: 48, lineHeight: '72px', color: COL.sub, whiteSpace: 'nowrap'}}>
             238 秒 → 44 秒 · 32 tok/s → 300 到 1000 tok/s
           </div>
         )}
-        {fl(f, TITLE + 110) && (
-          <div style={{position: 'absolute', left: 240, top: 660, fontFamily: FONT.pixel, fontSize: 36, lineHeight: '48px', color: COL.dim, whiteSpace: 'nowrap'}}>
+        {fl(f, TITLE + 130) && (
+          <div style={{position: 'absolute', left: 240, top: 732, fontFamily: FONT.pixel, fontSize: 36, lineHeight: '48px', color: COL.dim, whiteSpace: 'nowrap'}}>
             从硬件、模型，到每一步优化
           </div>
         )}

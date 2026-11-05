@@ -65,7 +65,7 @@ const App: React.FC = () => {
           key="film"
           ref={ref}
           component={Main}
-          inputProps={{cast, musicSrc: `${BASE}music.mp3`}}
+          inputProps={{cast, audioSrc: `${BASE}sfx.mp3`}}
           durationInFrames={TOTAL}
           fps={FPS}
           compositionWidth={1920}

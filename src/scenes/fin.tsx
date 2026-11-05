@@ -37,7 +37,7 @@ export const Result: React.FC = () => {
           七天的账
         </Txt>
         <Txt x={1824} y={72} size={24} anchor="end" color={T.dim}>
-          128k 上下文，单流 decode
+          LFM3-1.7B · 128k 上下文 · 单流 decode
         </Txt>
         <Txt x={96} y={138} size={24} anchor="start" color={T.dim}>
           阶段
@@ -86,6 +86,11 @@ export const Result: React.FC = () => {
             三根杠杆都动过：量化把每 token 从 5 GB 压到 2.57 GB，megakernel 和重叠把利用率从 21% 提到 68%，DSpark 把 2.57 GB 换成 1.35 GB
           </Txt>
         )}
+        {fl(f, A2 + 40) && (
+          <Txt x={96} y={846} size={24} anchor="start" color={T.dim}>
+            前两行是同系列的 LFM3-VL-2B，其余都是 LFM3-1.7B
+          </Txt>
+        )}
       </Stage>
     </AbsoluteFill>
   );
@@ -108,7 +113,7 @@ export const Compare: React.FC = () => {
     <AbsoluteFill>
       <Stage>
         <Txt x={96} y={72} size={48} anchor="start">
-          和 vLLM 上的同一个 kernel 比
+          LFM3-1.7B：和 vLLM 上的同一个 kernel 比
         </Txt>
         <Table
           x={96}
@@ -261,7 +266,7 @@ export const Logo: React.FC = () => {
       )}
       {fl(f, 150) && (
         <div style={{position: 'absolute', left: 0, right: 0, top: 570, textAlign: 'center', fontFamily: FONT.pixel, fontSize: 36, lineHeight: '48px', color: COL.sub}}>
-          785 GB/s，一步一步算清楚
+          LFM3-1.7B on MI50 · 785 GB/s，一步一步算清楚
         </div>
       )}
       {f >= 200 && CAST.map((c, i) => <Sprite key={i} map={c} x={660 + i * 120} y={660} s={PX * 1.5} screenX={660 + i * 120} />)}

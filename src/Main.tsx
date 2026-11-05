@@ -9,7 +9,7 @@ import {ACT_RANGES, SHOTS, TOTAL} from './timeline';
 
 export {TOTAL};
 
-export const Main: React.FC<{mute?: boolean; musicSrc?: string; cast?: Cast}> = ({mute, musicSrc, cast = 'ba'}) => {
+export const Main: React.FC<{mute?: boolean; audioSrc?: string; cast?: Cast}> = ({mute, audioSrc, cast = 'ba'}) => {
   const stops: [number, string][] = ACT_RANGES.map((a) => [a.s, a.color]);
   const hud = SHOTS.map((s) => ({id: s.id, start: s.start, end: s.end, mood: s.mood, act: s.act}));
   return (
@@ -20,7 +20,7 @@ export const Main: React.FC<{mute?: boolean; musicSrc?: string; cast?: Cast}> = 
       <ActHUD shots={hud} />
       <Transitions shots={SHOTS} />
       <CRT />
-      {!mute && <Audio src={musicSrc ?? staticFile('music.wav')} />}
+      {!mute && <Audio src={audioSrc ?? staticFile('sfx.wav')} />}
     </AbsoluteFill>
     </CastCtx.Provider>
   );

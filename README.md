@@ -2,7 +2,7 @@
 
 **MI50老矣 尚能饭否**
 
-一部讲解 LLM 推理优化的 Remotion 动画短片。全片只有一条主线：**一张 2018 年的 AMD Radeon Instinct MI50 有 785 GB/s 的显存带宽，怎么才算用完。** 五章、三十多个场景，从这张卡的基本架构和 LLM 推理的基本概念讲起，再按真实的优化顺序一步步算账。目标观众是学过计算机组成和操作系统的本科生。
+一部讲解 [LiquidAI/LFM3-1.7B](https://huggingface.co/LiquidAI/LFM3-1.7B) 推理优化的 Remotion 动画短片。全片只有一条主线：**一张 2018 年的 AMD Radeon Instinct MI50 有 785 GB/s 的显存带宽，跑 LFM3-1.7B 时怎么才算用完。** 五章、三十多个场景，从这张卡的基本架构和 LLM 推理的基本概念讲起，再按真实的优化顺序一步步算账。目标观众是学过计算机组成和操作系统的本科生。
 
 全片围绕一条式子：
 
@@ -10,7 +10,7 @@
 tok/s = 785 GB/s × 利用率 U ÷ 每提交一个 token 读的字节
 ```
 
-每一步优化都在动这条式子里的一项。128k 上下文，单流 decode：
+每一步优化都在动这条式子里的一项。LFM3-1.7B，128k 上下文，单流 decode（前两行是项目早期在同系列 LFM3-VL-2B 上测的）：
 
 | 阶段 | 每 token 读 | 带宽利用率 U | tok/s |
 |---|---|---|---|
@@ -23,9 +23,9 @@ tok/s = 785 GB/s × 利用率 U ÷ 每提交一个 token 读的字节
 
 推导见 [`docs/BANDWIDTH.md`](docs/BANDWIDTH.md)，完整的优化记录见 [`docs/OPTIMIZATION_REPORT.md`](docs/OPTIMIZATION_REPORT.md)。
 
-1920×1080 / 60fps，时间轴驱动；一套代码同时出「渲染成片」和「网页实时版」，配乐由脚本按时间轴程序化生成。
+1920×1080 / 60fps，时间轴驱动；一套代码同时出「渲染成片」和「网页实时版」，音效由脚本按时间轴程序化生成。
 
-这个分支（`lfm3-mi50`）沿用 `main` 分支《现代密码学 MV》的引擎、字体、人物和配乐生成器，内容全部重写。
+这个分支（`lfm3-mi50`）沿用 `main` 分支《现代密码学 MV》的引擎、字体和人物，内容全部重写。
 
 ![封面](assets/cover.png)
 
@@ -75,9 +75,9 @@ src/
                           ActTitle（章标题）· pixel（像素面板 / 精灵 / 方块光标）· kit
   scenes/                 lib（绘图原语）· hw · llm · run · go · ds · ds2 · Intro · fin
 web/                      网页实时版（Remotion Player，可切换两套人物）
-audio/make_music.py       8-bit 配乐生成；audio/timeline.json 为导出的时间轴（可再生）
+audio/make_sfx.py         8-bit 提示音效生成；audio/timeline.json 为导出的时间轴（可再生）
 scripts/                  时间轴导出 · 静帧 / 拼图 · 批量渲染 · 符号字体生成 · 字形检查
-public/                   渲染用静态资源（字体、人物精灵、配乐 mp3）
+public/                   渲染用静态资源（字体、人物精灵、音效 mp3）
 web-public/               网页版静态资源
 assets/screenshots/       README 截图
 ```
@@ -96,9 +96,9 @@ assets/screenshots/       README 截图
 
 人物精灵取自 pixiv #95092393（"Game Development Department" 像素立绘），按原生分辨率裁切、去背景，嵌入在 `src/components/sprites_data.ts`。**该图为他人作品，公开发布前请取得作者授权并署名**；`cast: 'classic'` 的版本使用原版单色像素小人，不含该素材。
 
-## 配乐
+## 音效
 
-沿用 `audio/make_music.py`：Pachelbel《D 大调卡农》（公有领域）的 8-bit 编配。全片一条连续的卡农，段落之间只改变密度，各章升调，场景里的 cue 映射为芯片音效。
+这部片子没有配乐，只有提示音效。`audio/make_sfx.py` 把场景里的 cue（打字、提示、揭晓、报错）和转场映射成 8-bit 芯片音效，按时间轴放到对应时刻。
 
 ## 快速开始
 
@@ -108,11 +108,11 @@ npm run studio          # Remotion Studio 预览
 npm run web:dev         # 网页实时版
 ```
 
-配乐（需要 Python）：
+音效（需要 Python）：
 
 ```bash
 python3 -m venv .venv && .venv/bin/pip install numpy scipy soundfile fonttools brotli pillow
-npm run music           # 导出时间轴并生成 public/music.wav
+npm run sfx             # 导出时间轴并生成 public/sfx.wav
 npm run audio:mp3       # 转出 mp3（网页版用）
 ```
 
@@ -125,7 +125,7 @@ bash scripts/sheet.sh name hw_chip:800 go_l2:600   # 按「镜头:场景帧」�
 npx remotion still Cover assets/cover.png --image-format=png   # 封面（1600×1200，4:3）
 ```
 
-渲染配置在 `remotion.config.ts`（h264 / crf 17 / yuv420p / jpeg 92，并发 8）。本地渲染前先 `npm run music` 生成 `public/music.wav`（母带不进仓库）。
+渲染配置在 `remotion.config.ts`（h264 / crf 17 / yuv420p / jpeg 92，并发 8）。本地渲染前先 `npm run sfx` 生成 `public/sfx.wav`（母带不进仓库）。
 
 ## 不进仓库的内容
 

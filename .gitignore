@@ -10,8 +10,7 @@ out/
 # 母带只留本地；网页流播版 mp3 随仓库
 public/*.wav
 public/*.mp3
-!public/music.mp3
-!public/music_short.mp3
+!public/sfx.mp3
 
 .DS_Store
 *.log

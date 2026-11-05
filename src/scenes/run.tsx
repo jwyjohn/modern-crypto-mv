@@ -43,7 +43,7 @@ export const RunBase: React.FC = () => {
         {fl(f, B1) && (
           <g>
             <Txt x={792} y={198} size={24} anchor="start" color={T.dim}>
-              第一次跑通：127872 token 的输入
+              第一次跑通：127872 token 输入，模型是同系列的 LFM3-VL-2B
             </Txt>
             <Box x={792} y={222} w={504} h={132} inv label="首 token 238 秒" sub="prefill 约 536 tok/s" />
             <Box x={1320} y={222} w={504} h={132} label="每 token 30.9 ms" sub="decode 约 32 tok/s" />
@@ -438,7 +438,7 @@ export const RunFix: React.FC = () => {
           </g>
         )}
       </Stage>
-      <Caption title="精度方案" en="FP16 AND INT8 ONLY" color={T.ink} desc="账单定下来了：每 token 2.57 GB。哪里能压，哪里不能压，都用 KL 量过" delay={24} />
+      <Caption title="精度方案" en="FP16 AND INT8 ONLY" color={T.ink} desc="从这里起全程是 LFM3-1.7B。账单定下来了：每 token 2.57 GB，每处都用 KL 量过" delay={24} />
     </AbsoluteFill>
   );
 };

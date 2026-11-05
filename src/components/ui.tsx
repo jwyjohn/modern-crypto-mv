@@ -173,7 +173,7 @@ export const ActHUD: React.FC<{shots: HudShot[]}> = ({shots}) => {
   const fq = Math.floor(f / 3) * 3;
   const steps = shots.filter((x) => x.mood === 'concept' || x.mood === 'problem');
   const X0 = 96;
-  const X1 = 960;
+  const X1 = 864;
   const sx = (i: number) => Math.round((X0 + (i / Math.max(1, steps.length - 1)) * (X1 - X0)) / 3) * 3;
   const cur = steps.findIndex((x) => x.id === s.id);
   const score = scoreAt(s.id, steps.map((x) => x.id));
@@ -205,7 +205,7 @@ export const ActHUD: React.FC<{shots: HudShot[]}> = ({shots}) => {
       {/* the bandwidth account at this point of the story, 128k context */}
       {score && (
         <div style={{position: 'absolute', right: 96, top: 78, display: 'flex', alignItems: 'center', gap: 18, whiteSpace: 'nowrap'}}>
-          <span style={{fontFamily: FONT.press, fontSize: 12, color: COL.dim}}>128K</span>
+          <span style={{fontFamily: FONT.press, fontSize: 12, color: COL.dim}}>LFM3-1.7B 128K</span>
           <span style={{fontFamily: FONT.pixel, fontSize: 24, color: score.bad ? COL.red : COL.text}}>带宽 {score.u}%</span>
           <span style={{display: 'inline-block', width: 180, height: 18, background: COL.panel, outline: `3px solid ${COL.ink}`}}>
             <span style={{display: 'block', width: Math.round((180 * score.u) / 100 / 6) * 6, height: 18, background: score.bad ? COL.red : COL.ink}} />

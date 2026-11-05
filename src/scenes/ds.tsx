@@ -131,7 +131,7 @@ export const DsDrafter: React.FC = () => {
         {fl(f, P[0]) && (
           <g>
             <Txt x={96} y={186} size={24} anchor="start" color={T.dim}>
-              verify 模型的 24 层
+              verify 模型：LFM3-1.7B 的 24 层
             </Txt>
             {new Array(24).fill(0).map((_, i) => (
               <rect key={i} x={96 + i * 27} y={210} width={21} height={48} fill={TAPS.includes(i) ? T.ink : T.paper2} stroke={T.ink} strokeWidth={TAPS.includes(i) ? 0 : 3} />
@@ -191,7 +191,7 @@ export const DsDrafter: React.FC = () => {
             </Txt>
           </g>
         )}
-        {fl(f, P[5]) && <Box x={1080} y={654} w={744} h={120} inv label="每轮只多读约 0.2 GB" sub="DSpark：2.6 亿参数，3 层，和 verify 共用 embedding" />}
+        {fl(f, P[5]) && <Box x={1080} y={654} w={744} h={120} inv label="每轮只多读约 0.2 GB" sub="DSpark：2.6 亿参数，3 层，和 LFM3-1.7B 共用 embedding" />}
       </Stage>
       <Caption title="DSpark" en="THE DRAFTER" color={T.ink} desc="它看 verify 模型内部的中间状态，所以又小又准：多读 0.2 GB，换来 τ 翻倍" delay={24} />
     </AbsoluteFill>

@@ -12,7 +12,7 @@ const CMD = '> generate("hello")';
 const CMD_AT = 40;
 const WAIT_AT = 150;
 const LINES: [number, string][] = [
-  [420, '2018 年的数据中心显卡，官方早已不再支持'],
+  [420, '模型是 LFM3-1.7B，显卡是 2018 年的 MI50，官方早已不再支持'],
   [500, '它有 785 GB/s 的显存带宽，这时只用上了五分之一'],
   [580, '其余的五分之四，能拿回来多少？'],
 ];
@@ -33,7 +33,7 @@ export const Intro: React.FC = () => {
     const main = '榨干一张 MI50';
     return (
       <AbsoluteFill>
-        <div style={{position: 'absolute', left: 240, top: 300, fontFamily: FONT.press, fontSize: 24, color: COL.dim, letterSpacing: '0.2em'}}>LLM INFERENCE ON A 2018 GPU</div>
+        <div style={{position: 'absolute', left: 240, top: 300, fontFamily: FONT.press, fontSize: 24, color: COL.dim, letterSpacing: '0.2em'}}>LFM3-1.7B ON A 2018 GPU</div>
         <div style={{position: 'absolute', left: 240, top: 360, fontFamily: FONT.pixel, fontSize: 144, lineHeight: '168px', color: COL.text, whiteSpace: 'nowrap'}}>
           {main.slice(0, tn)}
           {tn < main.length && <BlockCursor f={f} size={144} on />}
@@ -50,7 +50,7 @@ export const Intro: React.FC = () => {
         )}
         {fl(f, TITLE + 130) && (
           <div style={{position: 'absolute', left: 240, top: 732, fontFamily: FONT.pixel, fontSize: 36, lineHeight: '48px', color: COL.dim, whiteSpace: 'nowrap'}}>
-            32 tok/s → 334 tok/s，一步一步算清楚
+            LFM3-1.7B：334 tok/s，一步一步算清楚
           </div>
         )}
       </AbsoluteFill>
@@ -69,7 +69,7 @@ export const Intro: React.FC = () => {
         </div>
       )}
       {f >= WAIT_AT + 30 && (
-        <div style={{position: 'absolute', left: 240, top: 396, fontFamily: FONT.pixel, fontSize: 36, lineHeight: '48px', color: COL.dim}}>等第一个 token（127872 token 的输入）</div>
+        <div style={{position: 'absolute', left: 240, top: 396, fontFamily: FONT.pixel, fontSize: 36, lineHeight: '48px', color: COL.dim}}>等第一个 token（127872 token 的输入，这次跑的是同系列的 LFM3-VL-2B）</div>
       )}
       {LINES.map(([at, s], i) =>
         f >= at ? (
@@ -95,7 +95,7 @@ export const OverviewCues: Cue[] = [
 ];
 
 const TERM = ['785 GB/s', '每 token 读多少', '先把该读的读对', '利用率 U', '一份字节换更多 token'];
-const LINE2 = ['CU、wave、HBM2、Roofline：这条路有多宽', 'token、注意力、KV cache、量化：一个 token 要读 2.57 GB', 'megakernel、精度修复：少读，但不能读错', '叠起等待、GEMV、直连驱动：不让内存闲着', 'DSpark：一次读权重，验证多个 token'];
+const LINE2 = ['CU、wave、HBM2、Roofline：这条路有多宽', 'LFM3-1.7B：token、注意力、KV cache、量化。一个 token 要读 2.57 GB', 'megakernel、精度修复：少读，但不能读错', '叠起等待、GEMV、直连驱动：不让内存闲着', 'DSpark：一次读权重，验证多个 token'];
 const WHO = [YUZU, ALICE, SAGE, EVE, BOB];
 
 export const Overview: React.FC = () => {

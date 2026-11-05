@@ -16,8 +16,8 @@ export const LlmTitle: React.FC = () => (
     en="BYTES PER TOKEN"
     color={COL.ink}
     topics={['prefill 与 decode', '权重的账', 'Q K V', 'KV cache', '每字节几次运算', '量化']}
-    quote="每生成一个 token，都要把整个模型读一遍"
-    by="LiquidAI/LFM3-1.7B"
+    quote="LFM3-1.7B 每生成一个 token，都要把整个模型读一遍"
+    by="LiquidAI/LFM3-1.7B · 17 亿参数 · 24 层"
   />
 );
 
@@ -59,7 +59,7 @@ export const LlmLoop: React.FC = () => {
         {f >= L1 && (
           <g>
             <Wire x0={480} y0={300} x1={480} y1={348} t={ramp(f, L1, 24)} />
-            <Box x={96} y={354} w={768} h={102} label="模型：24 层 + LM head" sub="输入一串 token，输出下一个 token 的 128000 个分数" />
+            <Box x={96} y={354} w={768} h={102} label="LFM3-1.7B：24 层 + LM head" sub="输入一串 token，输出下一个 token 的 128000 个分数" />
             <Wire x0={864} y0={405} x1={1008} y1={405} t={ramp(f, L1 + 30, 24)} />
             <Box x={1014} y={354} w={300} h={102} label="取最大" sub="greedy" />
             <Wire x0={1164} y0={354} x1={1164} y1={294} t={ramp(f, L1 + 54, 24)} />
@@ -84,7 +84,7 @@ export const LlmLoop: React.FC = () => {
           </g>
         )}
       </Stage>
-      <Caption title="推理就是一个循环" en="THE GENERATION LOOP" color={T.ink} desc="prefill 读输入，decode 写输出。这部片子主要算 decode 的账" delay={24} />
+      <Caption title="推理就是一个循环" en="THE GENERATION LOOP" color={T.ink} desc="本片的模型是 LFM3-1.7B。prefill 读输入，decode 写输出，主要算 decode 的账" delay={24} />
     </AbsoluteFill>
   );
 };
@@ -114,7 +114,7 @@ export const LlmLayers: React.FC = () => {
     <AbsoluteFill>
       <Stage>
         <Txt x={96} y={186} size={24} anchor="start" color={T.dim}>
-          LFM3-1.7B：H = 2048，24 层交替
+          LFM3-1.7B 的结构：隐藏维度 H = 2048，24 层交替
         </Txt>
         {KINDS.map((k, i) =>
           i < n ? (
@@ -177,7 +177,7 @@ export const LlmLayers: React.FC = () => {
           </g>
         )}
       </Stage>
-      <Caption title="权重的账" en="24 LAYERS, 1.76 GB" color={T.ink} desc="账单的第一项：1.76 GB 权重，不管上下文多长，每个 token 都要读一遍" delay={24} />
+      <Caption title="LFM3-1.7B 的权重账" en="24 LAYERS, 1.76 GB" color={T.ink} desc="账单的第一项：1.76 GB 权重，不管上下文多长，每个 token 都要读一遍" delay={24} />
     </AbsoluteFill>
   );
 };
@@ -243,7 +243,7 @@ export const LlmAttn: React.FC = () => {
               上下文有 T 个 token，每个 token 都要和 T 个 K 比一遍：prefill 是 O(T²)
             </Txt>
             <Txt x={96} y={708} size={24} anchor="start" color={T.sub}>
-              每个 head 独立做一次。这里 16 个 Q head 共用 4 个 K/V head（GQA），省下 3/4 的 K/V
+              每个 head 独立做一次。LFM3-1.7B 里 16 个 Q head 共用 4 个 K/V head（GQA），省下 3/4 的 K/V
             </Txt>
           </g>
         )}
@@ -319,7 +319,7 @@ export const LlmKv: React.FC = () => {
         {fl(f, K2) && (
           <g>
             <Txt x={96} y={510} size={24} anchor="start" color={T.dim}>
-              128k 上下文，decode 一个 token 至少要读：
+              LFM3-1.7B，128k 上下文，decode 一个 token 至少要读：
             </Txt>
             <BarRow x={96} y={534} name="全部权重" nameW={210} frac={1.76 / 2.57} max={1020} value="1.76 GB" t={ramp(f, K2, 36)} />
             <BarRow x={96} y={582} name="6 层 KV" nameW={210} frac={0.81 / 2.57} max={1020} value="0.81 GB" t={ramp(f, K2 + 36, 36)} hollow />
@@ -402,7 +402,7 @@ export const LlmCost: React.FC = () => {
           />
         )}
       </Stage>
-      <Caption title="每字节几次运算" en="OPERATIONAL INTENSITY" color={T.ink} desc="同一个模型，decode 撞带宽，prefill 撞算力。后面的主线是 decode" delay={24} />
+      <Caption title="每字节几次运算" en="OPERATIONAL INTENSITY" color={T.ink} desc="同样是 LFM3-1.7B，decode 撞带宽，prefill 撞算力。后面的主线是 decode" delay={24} />
     </AbsoluteFill>
   );
 };

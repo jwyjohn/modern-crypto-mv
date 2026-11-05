@@ -6,13 +6,13 @@
     "studio": "remotion studio",
     "render": "remotion render MVInference out/MI50_MV.mp4",
     "timeline": "node scripts/export_timeline.mjs",
-    "music": "node scripts/export_timeline.mjs && .venv/bin/python audio/make_music.py audio/timeline.json public/music.wav",
-    "audio:mp3": "npx remotion ffmpeg -hide_banner -loglevel error -y -i public/music.wav -codec:a libmp3lame -b:a 128k public/music.mp3 && cp public/music.mp3 web-public/music.mp3",
+    "audio:mp3": "npx remotion ffmpeg -hide_banner -loglevel error -y -i public/sfx.wav -codec:a libmp3lame -b:a 128k public/sfx.mp3 && cp public/sfx.mp3 web-public/sfx.mp3",
     "typecheck": "tsc --noEmit -p .",
     "web:dev": "vite",
     "web:build": "vite build",
     "web:preview": "vite preview",
-    "render:classic": "remotion render MVInferenceClassic out/MI50_MV_classic.mp4"
+    "render:classic": "remotion render MVInferenceClassic out/MI50_MV_classic.mp4",
+    "sfx": "node scripts/export_timeline.mjs && .venv/bin/python audio/make_sfx.py audio/timeline.json public/sfx.wav"
   },
   "dependencies": {
     "@remotion/bundler": "^4.0.529",

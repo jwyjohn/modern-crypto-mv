@@ -12,7 +12,8 @@
     "web:build": "vite build",
     "web:preview": "vite preview",
     "render:classic": "remotion render MVInferenceClassic out/MI50_MV_classic.mp4",
-    "sfx": "node scripts/export_timeline.mjs && .venv/bin/python audio/make_sfx.py audio/timeline.json public/sfx.wav"
+    "sfx": "node scripts/export_timeline.mjs && .venv/bin/python audio/make_sfx.py audio/timeline.json public/sfx.wav",
+    "slides": "node scripts/slides.mjs && .venv/bin/python scripts/slides_pdf.py"
   },
   "dependencies": {
     "@remotion/bundler": "^4.0.529",

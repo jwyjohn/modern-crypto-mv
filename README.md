@@ -76,7 +76,7 @@ src/
   scenes/                 lib（绘图原语）· hw · llm · run · go · ds · ds2 · Intro · fin
 web/                      网页实时版（Remotion Player，可切换两套人物）
 audio/make_sfx.py         8-bit 提示音效生成；audio/timeline.json 为导出的时间轴（可再生）
-scripts/                  时间轴导出 · 静帧 / 拼图 · 批量渲染 · 符号字体生成 · 字形检查
+scripts/                  时间轴导出 · 静帧 / 拼图 · PDF 幻灯片 · 批量渲染 · 符号字体生成 · 字形检查
 public/                   渲染用静态资源（字体、人物精灵、音效 mp3）
 web-public/               网页版静态资源
 assets/screenshots/       README 截图
@@ -121,11 +121,14 @@ npm run audio:mp3       # 转出 mp3（网页版用）
 ```bash
 bash scripts/render_all.sh                    # 两个版本 → out/MI50_MV{,_classic}.mp4
 npm run render                                # 仅游戏开发部人物版
+npm run slides                                # PDF 幻灯片 → out/MI50_MV_slides.pdf（见下）
 bash scripts/sheet.sh name hw_chip:800 go_l2:600   # 按「镜头:场景帧」渲染静帧并拼图到 out/name.jpg
 npx remotion still Cover assets/cover.png --image-format=png   # 封面（1600×1200，4:3）
 ```
 
 渲染配置在 `remotion.config.ts`（h264 / crf 17 / yuv420p / jpeg 92，并发 8）。本地渲染前先 `npm run sfx` 生成 `public/sfx.wav`（母带不进仓库）。
+
+**PDF 幻灯片**：`scripts/slides.mjs` 给每个镜头取下一次转场前的定格帧，案例页另加一张标题页，片头另加「等 238 秒」一页，滚动的致谢拆成三页，共 49 页，以 3840×2160 渲染（`--scale 1` 出 1080p，`--list` 只列帧号）。`scripts/slides_pdf.py` 把它们打包成 16:9 的 PDF，带章节书签。每页都无损：不超过 256 色的页存成调色板图，其余存 RGB，PNG 的压缩流原样放进 PDF，不重新编码。全书约 1.3 MB。页面是图片，文字不能选中。
 
 ## 不进仓库的内容
 
